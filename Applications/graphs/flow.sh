@@ -12,7 +12,7 @@ OUTPUT_FOLDER=$PROJECT_FOLDER/output/graphs
 rm -rf $OUTPUT_FOLDER
 mkdir -p $OUTPUT_FOLDER
 
-MAX_IT=50
+MAX_IT=5
 
 
 
@@ -27,6 +27,11 @@ $FLOW_APP -r 3 -i $MAX_IT -a 0 -c 0 -s 0 -p double-opt -n 4 -l 0 -q 1 -t 0 -g 0 
 $FLOW_APP -r 3 -i $MAX_IT -a 0 -c 0 -s 0 -p double -n 4 -l -2 -q 1 -t 0 -g 0 -m probe -o  probe-two-levels-plus-opt $OUTPUT_FOLDER/probe&
 $FLOW_APP -r 3 -i $MAX_IT -a 0 -c 0 -s 0 -p double -n 4 -l -1 -q 1 -t 0 -g 0 -m probe -o  probe-one-level-plus-opt $OUTPUT_FOLDER/probe&
 #$FLOW_APP -r 3 -i $MAX_IT -a 0 -c 0 -s 0 -p double -n 4 -l 3 -q 1 -t 0 -g 0 -m probe  px-double-around-probe $OUTPUT_FOLDER/probe&
+
+wait
+
+summary_flow $OUTPUT_FOLDER/improve
+summary_flow $OUTPUT_FOLDER/probe
 
 wait
 
