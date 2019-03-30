@@ -12,4 +12,5 @@ link_directories(${DIPACUS_LIBS_DIR}
 add_subdirectory(Applications/IIxMeanII)
 add_subdirectory(Applications/figures)
 add_subdirectory(Applications/mcf)
+add_subdirectory(Applications/layers-intuition)
 add_subdirectory(Applications/coefficient-map)
