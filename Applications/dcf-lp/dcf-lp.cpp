@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include "glpk.h"
 
 #include "DGtal/io/writers/GenericWriter.h"
@@ -280,27 +282,19 @@ namespace LPWriter
 
 
 
-ISQ::SquaredCurvatureTerm sqTerm(const DigitalSet& dsInput, bool correction)
+ISQ::SquaredCurvatureTerm sqTerm(const DigitalSet& dsInput,
+                                 DigitalSet& dsOut,
+                                 bool correction,
+                                 int levels,
+                                 ODRModel::OptimizationMode optMode,
+                                 ODRModel::ApplicationMode appMode)
 {
-    int levels = 2;
     unsigned int radius = 3;
     bool optRegionInApplication = false;
     bool invertFrgBkg = false;
     MockDistribution fgDistr;
     MockDistribution bgDistr;
     double sqTermWeight = 1.0;
-
-    ODRModel::OptimizationMode optMode;
-    ODRModel::ApplicationMode appMode = ODRModel::ApplicationMode::AM_AroundBoundary;
-    if(correction)
-    {
-        optMode = ODRModel::OptimizationMode::OM_OriginalBoundary;
-        invertFrgBkg = false;
-    }else
-    {
-        optMode = ODRModel::OptimizationMode::OM_DilationBoundary;
-        invertFrgBkg = false;
-    }
 
     const Domain &domain = dsInput.domain();
 
@@ -326,33 +320,148 @@ ISQ::SquaredCurvatureTerm sqTerm(const DigitalSet& dsInput, bool correction)
     ISQ::InputData id(ODR,cvImage,radius,fgDistr,bgDistr,0,sqTermWeight,0);
     ISQ::SquaredCurvatureTerm sqt(id,odrPixels.handle());
 
+    dsOut.clear();
+    dsOut.insert(ODR.trustFRG.begin(),ODR.trustFRG.end());
+    dsOut.insert(ODR.optRegion.begin(),ODR.optRegion.end());
+
     return sqt;
 }
 
-
-int main()
+struct Input
 {
-    std::string outputFolder = PROJECT_DIR;
-    outputFolder += "/output/dcf-lp";
+    enum ShapeType{Square,Flower};
 
-    DigitalSet _dsInput = Shapes::square(1.0,0,0,40);
-    //DigitalSet _dsInput = Shapes::flower(1.0,0,0,20,10,2,1);
+    Input()
+    {
+        shape = Square;
+        optMode = ODRModel::OptimizationMode::OM_OriginalBoundary;
+        appMode = ODRModel::AM_AroundBoundary;
+        alternateOpt = false;
+        levels = 3;
+
+        outputFolder=PROJECT_DIR;
+        outputFolder+="/output";
+        iterations=10;
+    };
+
+    ShapeType  shape;
+
+    ODRModel::OptimizationMode optMode;
+    ODRModel::ApplicationMode appMode;
+    bool alternateOpt;
+    int levels;
+    int iterations;
+
+    std::string outputFolder;
+};
+
+int input(Input& in, int argc, char* argv[])
+{
+    int opt;
+    while( (opt=getopt(argc,argv,"o:a:l:s:i:"))!=-1)
+    {
+        switch(opt)
+        {
+            case 'o':
+            {
+                if(strcmp(optarg,"boundary")==0) in.optMode=ODRModel::OptimizationMode::OM_OriginalBoundary;
+                else if(strcmp(optarg,"dilation")==0) in.optMode=ODRModel::OptimizationMode::OM_DilationBoundary;
+                else if(strcmp(optarg,"alternate")==0) in.alternateOpt = true;
+                break;
+            }
+            case 'a':
+            {
+                if(strcmp(optarg,"boundary")==0) in.appMode = ODRModel::ApplicationMode::AM_OptimizationBoundary;
+                else if(strcmp(optarg,"around")==0) in.appMode = ODRModel::ApplicationMode::AM_AroundBoundary;
+                break;
+            }
+            case 'l':
+            {
+                in.levels = atoi(optarg);
+                break;
+            }
+            case 's':
+            {
+                if(strcmp(optarg,"square")==0) in.shape= Input::Square;
+                else if(strcmp(optarg,"flower")==0) in.shape= Input::Flower;
+                break;
+            }
+            case 'i':
+            {
+                in.iterations = atoi(optarg);
+                break;
+            }
+        }
+    }
+
+    if(optind>=argc) std::cout << "Using standard output folder\n";
+    else in.outputFolder = argv[optind++];
+    return 0;
+
+}
+
+Domain maxDomain(const DigitalSet& ds1,const DigitalSet& ds2)
+{
+    Point lb1,ub1;
+    lb1 = ds1.domain().lowerBound();
+    ub1 = ds1.domain().upperBound();
+
+    Point lb2,ub2;
+    lb2 = ds2.domain().lowerBound();
+    ub2 = ds2.domain().upperBound();
+
+    Point lb,ub;
+    lb[0] = lb1[0]<lb2[0]?lb1[0]:lb2[0];
+    lb[1] = lb1[1]<lb2[1]?lb1[1]:lb2[1];
+
+    ub[0] = ub1[0]>ub2[0]?ub1[0]:ub2[0];
+    ub[1] = ub1[1]>ub2[1]?ub1[1]:ub2[1];
+
+    return Domain(lb,ub);
+}
+
+
+int main(int argc, char* argv[])
+{
+    Input in;
+    int code = input(in,argc,argv);
+    if(code!=0)
+    {
+        exit(code);
+    }
+
+    DigitalSet _square = Shapes::square(1.0,0,0,40);
+    DigitalSet _flower = Shapes::flower(1.0,0,0,20,10,2,1);
+
+    Domain domain = maxDomain(_square,_flower);
+    DigitalSet _dsInput(domain);
+    if(in.shape==Input::Square) _dsInput=_square;
+    else if(in.shape==Input::Flower) _dsInput=_flower;
+
+
 
     DigitalSet dsInput = bottomLeftBoundingBoxAtOrigin(_dsInput,Point(20,20));
 
-    int maxIt=40;
+    int maxIt=in.iterations;
     int it=1;
-    bool correction=false;
+    bool correction=true;
     while(it<=maxIt)
     {
-        correction = true;//it%2==0;
 
-        ISQ::SquaredCurvatureTerm sqt = sqTerm(dsInput,correction);
-        DigitalSet dsOut = LPWriter::convertAndWrite(outputFolder,sqt,dsInput);
+        if(in.alternateOpt)
+        {
+            correction = !correction;
+            if(correction) in.optMode = ODRModel::OptimizationMode::OM_OriginalBoundary;
+            else in.optMode = ODRModel::OptimizationMode::OM_DilationBoundary;
+        }
+
+        DigitalSet modelOut(dsInput.domain());
+        ISQ::SquaredCurvatureTerm sqt = sqTerm(dsInput,modelOut,correction,in.levels,in.optMode,in.appMode);
+        DigitalSet dsOut = LPWriter::convertAndWrite(in.outputFolder,sqt,modelOut);
 
         DIPaCUS::Representation::Image2D imgOut(dsOut.domain());
         DIPaCUS::Representation::digitalSetToImage(imgOut,dsOut);
-        DGtal::GenericWriter<Image2D>::exportFile(outputFolder + "/square-img-solution-" + std::to_string(it) + ".pgm",imgOut);
+        DGtal::GenericWriter<Image2D>::exportFile(in.outputFolder + "/it-" + std::to_string(it) + ".pgm",imgOut);
 
         dsInput = dsOut;
 

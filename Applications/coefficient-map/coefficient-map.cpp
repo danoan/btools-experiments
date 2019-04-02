@@ -80,7 +80,7 @@ void printLabelingReport(const ODRModel& ODR, const ISQ::SquaredCurvatureTerm& e
         }
     }
 
-    std::cout << "\nUnlabeled: " << unlabeled << "\tLabel 1: " << label1 << "\tLabel 0: " << label0 << std::endl;
+    std::cout << "\nUnlabeled(not straigthforward): " << unlabeled << "\tLabel 1: " << label1 << "\tLabel 0: " << label0 << std::endl;
 }
 
 DigitalSet iteration(const DigitalSet& dsInput, bool correction)
