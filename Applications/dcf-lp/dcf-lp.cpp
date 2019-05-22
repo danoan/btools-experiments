@@ -11,9 +11,13 @@
 #include "SCaBOliC/Core/ODRPixels.h"
 #include "SCaBOliC/Energy/ISQ/Terms/SquaredCurvature/SquaredCurvatureTerm.h"
 
+#include "BTools/reader/DCFReader.h"
+#include "BTools/reader/Types.h"
+
 #include "MultiIndex.h"
 #include "Linearization.h"
 #include "MockDistribution.h"
+#include "../labeling-levels/include/dispUtils.h"
 
 
 using namespace DGtal::Z2i;
@@ -23,6 +27,8 @@ using namespace DIPaCUS::Representation;
 
 using namespace SCaBOliC::Core;
 using namespace SCaBOliC::Energy;
+
+using namespace BTools::Reader;
 
 using namespace Experiments;
 
@@ -187,7 +193,6 @@ namespace LPWriter
     {
         //Read a SQT Scabolic term and convert on the data expected
         //by LPWriter, namely, VariableMap and Linearization
-
         UnaryMap um;
         for(int i=0;i<sqt.od.numVars;++i)
         {
@@ -207,12 +212,12 @@ namespace LPWriter
             }
         }
 
+
         Index nextIndex = sqt.od.numVars;
         MyLinearization linearization(nextIndex);
         linearization.linearize(bm);
 
         writeLP(outputFilepath+"/lp-program.txt",um,linearization);
-
 
         std::string lpInputFile = outputFilepath+"/lp-program.txt";
 
@@ -261,7 +266,7 @@ namespace LPWriter
 
         DigitalSet dsOut = dsInput;
         DigitalSet optRegion(dsOut.domain());
-        DIPaCUS::Misc::DigitalBoundary<DIPaCUS::Neighborhood::FourNeighborhoodPredicate>(optRegion,dsInput);
+        DIPaCUS::Misc::digitalBoundary<DIPaCUS::Neighborhood::FourNeighborhoodPredicate>(optRegion,dsInput);
 
         for(auto it=optRegion.begin();it!=optRegion.end();++it)
         {
@@ -280,21 +285,19 @@ namespace LPWriter
     }
 }
 
-
-
-ISQ::SquaredCurvatureTerm sqTerm(const DigitalSet& dsInput,
-                                 DigitalSet& dsOut,
-                                 bool correction,
-                                 int levels,
-                                 ODRModel::OptimizationMode optMode,
-                                 ODRModel::ApplicationMode appMode)
+struct EnergyData
 {
-    unsigned int radius = 3;
-    bool optRegionInApplication = false;
-    bool invertFrgBkg = false;
+    EnergyData(const ISQ::SquaredCurvatureTerm& sqt, const DigitalSet &ds) : sqt(sqt), ds(ds) {}
+
+    ISQ::SquaredCurvatureTerm sqt;
+    DigitalSet ds;
+};
+
+EnergyData sqTerm(const DigitalSet& dsInput,
+                  const DCFReader::InputData& input)
+{
     MockDistribution fgDistr;
     MockDistribution bgDistr;
-    double sqTermWeight = 1.0;
 
     const Domain &domain = dsInput.domain();
 
@@ -304,166 +307,122 @@ ISQ::SquaredCurvatureTerm sqTerm(const DigitalSet& dsInput,
 
     ODRPixels odrPixels(ODRModel::ApplicationCenter::AC_PIXEL,
                         ODRModel::CountingMode::CM_PIXEL,
-                        levels,
-                        ODRModel::LevelDefinition::LD_CloserFromCenter,
-                        ODRModel::NeighborhoodType::FourNeighborhood);
+                        input.radius,
+                        1.0,
+                        input.levels,
+                        input.ld,
+                        input.neighborhood,
+                        input.seType);
 
 
-    ODRModel ODR = odrPixels.createODR(optMode,
-                                       appMode,
-                                       radius,
+    ODRModel ODR = odrPixels.createODR(input.om,
+                                       input.am,
                                        dsInput,
-                                       optRegionInApplication,
-                                       invertFrgBkg);
+                                       input.optRegionInApplication);
 
+    ISQ::InputData id(ODR,
+                      cvImage,
+                      fgDistr,
+                      bgDistr,
+                      input.excludeOptPointsFromAreaComputation,
+                      input.penalizationMode,
+                      input.repeatedImprovement,
+                      0,
+                      input.sqWeight,
+                      0);
 
-    ISQ::InputData id(ODR,cvImage,radius,fgDistr,bgDistr,0,sqTermWeight,0);
     ISQ::SquaredCurvatureTerm sqt(id,odrPixels.handle());
 
+    DigitalSet dsOut(ODR.domain);
     dsOut.clear();
     dsOut.insert(ODR.trustFRG.begin(),ODR.trustFRG.end());
     dsOut.insert(ODR.optRegion.begin(),ODR.optRegion.end());
 
-    return sqt;
+    return EnergyData(sqt,dsOut);
 }
 
-struct Input
+
+
+typedef DCFReader::Shape Shape;
+typedef DCFReader::ShapeType ShapeType;
+DigitalSet resolveShape(Shape shape,double gridStep)
 {
-    enum ShapeType{Square,Flower};
-
-    Input()
+    int radius=20;
+    if(shape.type==ShapeType::Triangle) return DIPaCUS::Shapes::triangle(gridStep,0,0,radius);
+    else if(shape.type==ShapeType::Square) return DIPaCUS::Shapes::square(gridStep,0,0,radius);
+    else if(shape.type==ShapeType::Pentagon) return DIPaCUS::Shapes::NGon(gridStep,0,0,radius,5);
+    else if(shape.type==ShapeType::Heptagon) return DIPaCUS::Shapes::NGon(gridStep,0,0,radius,7);
+    else if(shape.type==ShapeType::Ball) return DIPaCUS::Shapes::ball(gridStep,0,0,radius);
+    else if(shape.type==ShapeType::Flower) return DIPaCUS::Shapes::flower(gridStep,0,0,radius,radius/2.0,2);
+    else if(shape.type==ShapeType::Ellipse) return DIPaCUS::Shapes::ellipse(gridStep,0,0,radius,radius/2);
+    else
     {
-        shape = Square;
-        optMode = ODRModel::OptimizationMode::OM_OriginalBoundary;
-        appMode = ODRModel::AM_AroundBoundary;
-        alternateOpt = false;
-        levels = 3;
-
-        outputFolder=PROJECT_DIR;
-        outputFolder+="/output";
-        iterations=10;
-    };
-
-    ShapeType  shape;
-
-    ODRModel::OptimizationMode optMode;
-    ODRModel::ApplicationMode appMode;
-    bool alternateOpt;
-    int levels;
-    int iterations;
-
-    std::string outputFolder;
-};
-
-int input(Input& in, int argc, char* argv[])
-{
-    int opt;
-    while( (opt=getopt(argc,argv,"o:a:l:s:i:"))!=-1)
-    {
-        switch(opt)
-        {
-            case 'o':
-            {
-                if(strcmp(optarg,"boundary")==0) in.optMode=ODRModel::OptimizationMode::OM_OriginalBoundary;
-                else if(strcmp(optarg,"dilation")==0) in.optMode=ODRModel::OptimizationMode::OM_DilationBoundary;
-                else if(strcmp(optarg,"alternate")==0) in.alternateOpt = true;
-                break;
-            }
-            case 'a':
-            {
-                if(strcmp(optarg,"boundary")==0) in.appMode = ODRModel::ApplicationMode::AM_OptimizationBoundary;
-                else if(strcmp(optarg,"around")==0) in.appMode = ODRModel::ApplicationMode::AM_AroundBoundary;
-                break;
-            }
-            case 'l':
-            {
-                in.levels = atoi(optarg);
-                break;
-            }
-            case 's':
-            {
-                if(strcmp(optarg,"square")==0) in.shape= Input::Square;
-                else if(strcmp(optarg,"flower")==0) in.shape= Input::Flower;
-                break;
-            }
-            case 'i':
-            {
-                in.iterations = atoi(optarg);
-                break;
-            }
-        }
+        cv::Mat img = cv::imread(shape.imagePath,CV_8UC1);
+        Domain domain( DGtal::Z2i::Point(0,0), DGtal::Z2i::Point(img.cols-1,img.rows-1) );
+        DigitalSet ds(domain);
+        DIPaCUS::Representation::CVMatToDigitalSet(ds,img,1);
+        return ds;
     }
-
-    if(optind>=argc) std::cout << "Using standard output folder\n";
-    else in.outputFolder = argv[optind++];
-    return 0;
-
 }
 
-Domain maxDomain(const DigitalSet& ds1,const DigitalSet& ds2)
+DCFReader::InputData defaultValues()
 {
-    Point lb1,ub1;
-    lb1 = ds1.domain().lowerBound();
-    ub1 = ds1.domain().upperBound();
+    DCFReader::InputData id;
 
-    Point lb2,ub2;
-    lb2 = ds2.domain().lowerBound();
-    ub2 = ds2.domain().upperBound();
+    id.shape = DCFReader::Shape(DCFReader::ShapeType::Square);
+    id.om = ODRModel::OptimizationMode::OM_CorrectConvexities;
+    id.am = ODRModel::AM_AroundBoundary;
+    id.fp = DCFReader::InputData::FlowProfile::DoubleStep;
+    id.ld = DCFReader::InputData::ODRConfigInput::LevelDefinition::LD_FartherFromCenter;
 
-    Point lb,ub;
-    lb[0] = lb1[0]<lb2[0]?lb1[0]:lb2[0];
-    lb[1] = lb1[1]<lb2[1]?lb1[1]:lb2[1];
+    id.levels = 3;
+    id.iterations = 10;
+    id.gridStep=1.0;
 
-    ub[0] = ub1[0]>ub2[0]?ub1[0]:ub2[0];
-    ub[1] = ub1[1]>ub2[1]?ub1[1]:ub2[1];
-
-    return Domain(lb,ub);
-}
-
+    return id;
+};
 
 int main(int argc, char* argv[])
 {
-    Input in;
-    int code = input(in,argc,argv);
-    if(code!=0)
+    DCFReader::InputData id = DCFReader::readInput(argc,argv,"OUTPUT_FOLDER\n",defaultValues);
+    std::string outputFolder;
+    try
     {
-        exit(code);
+        outputFolder = argv[argc-1];
+    }catch(std::exception ex)
+    {
+        std::cerr << "Missing arguments!\n";
+        exit(1);
     }
 
-    DigitalSet _square = Shapes::square(1.0,0,0,40);
-    DigitalSet _flower = Shapes::flower(1.0,0,0,20,10,2,1);
-
-    Domain domain = maxDomain(_square,_flower);
-    DigitalSet _dsInput(domain);
-    if(in.shape==Input::Square) _dsInput=_square;
-    else if(in.shape==Input::Flower) _dsInput=_flower;
-
-
-
+    DigitalSet _dsInput = resolveShape(id.shape,id.gridStep);
     DigitalSet dsInput = bottomLeftBoundingBoxAtOrigin(_dsInput,Point(20,20));
 
-    int maxIt=in.iterations;
     int it=1;
     bool correction=true;
-    while(it<=maxIt)
+    while(it<=id.iterations)
     {
 
-        if(in.alternateOpt)
+        if(id.fp==DCFReader::InputData::FlowProfile::DoubleStep)
         {
             correction = !correction;
-            if(correction) in.optMode = ODRModel::OptimizationMode::OM_OriginalBoundary;
-            else in.optMode = ODRModel::OptimizationMode::OM_DilationBoundary;
+            if(correction) id.om = ODRModel::OptimizationMode::OM_CorrectConvexities;
+            else id.om = ODRModel::OptimizationMode::OM_CorrectConcavities;
         }
 
-        DigitalSet modelOut(dsInput.domain());
-        ISQ::SquaredCurvatureTerm sqt = sqTerm(dsInput,modelOut,correction,in.levels,in.optMode,in.appMode);
-        DigitalSet dsOut = LPWriter::convertAndWrite(in.outputFolder,sqt,modelOut);
+        EnergyData ED = sqTerm(dsInput,id);
+        DigitalSet dsOut = LPWriter::convertAndWrite(outputFolder,ED.sqt,ED.ds);
 
-        DIPaCUS::Representation::Image2D imgOut(dsOut.domain());
-        DIPaCUS::Representation::digitalSetToImage(imgOut,dsOut);
-        DGtal::GenericWriter<Image2D>::exportFile(in.outputFolder + "/it-" + std::to_string(it) + ".pgm",imgOut);
+        dsInput.clear();
+        if(correction)
+            dsInput.insert(dsOut.begin(), dsOut.end());
+        else
+            dsInput.assignFromComplement(dsOut);
 
-        dsInput = dsOut;
+        DIPaCUS::Representation::Image2D imgOut(dsInput.domain());
+        DIPaCUS::Representation::digitalSetToImage(imgOut,dsInput);
+
+        DGtal::GenericWriter<Image2D>::exportFile(outputFolder + "/it-" + std::to_string(it) + ".pgm",imgOut);
 
         ++it;
     }

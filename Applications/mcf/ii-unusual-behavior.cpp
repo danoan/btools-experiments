@@ -7,7 +7,7 @@
 #include <geoc/api/gridCurve/Curvature.hpp>
 
 typedef DIPaCUS::Representation::DigitalSet DigitalSet;
-typedef DIPaCUS::Misc::ComputeBoundaryCurve::Curve Curve;
+typedef DIPaCUS::Misc::Curve Curve;
 
 
 void ii(std::vector<double>& results, const DigitalSet& digShape)
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     DigitalSet squareDS = DIPaCUS::Shapes::square(0.5,0,0,20);
     Curve curve;
 
-    DIPaCUS::Misc::ComputeBoundaryCurve(squareDS,curve);
+    DIPaCUS::Misc::computeBoundaryCurve(curve,squareDS);
     DGtal::Z2i::KSpace KImage;
     KImage.init( squareDS.domain().lowerBound(),squareDS.domain().upperBound(),true);
 

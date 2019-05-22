@@ -10,16 +10,20 @@ namespace LinelPixel
                             ApplicationMode am,
                             int levels)
     {
+
         TODRFactory odrFactory(ac,
                                cm,
+                               RADIUS,
+                               1.0,
                                levels,
                                SCaBOliC::Core::ODRModel::LevelDefinition::LD_CloserFromCenter,
-                               SCaBOliC::Core::ODRModel::FourNeighborhood);
+                               SCaBOliC::Core::ODRModel::NeighborhoodType::FourNeighborhood,
+                               SCaBOliC::Core::ODRModel::StructuringElementType::RECT);
 
         return odrFactory.createODR(om,
                                     am,
-                                    RADIUS,
-                                    ds);
+                                    ds,
+                                    false);
 
 
     }
@@ -53,8 +57,7 @@ namespace LinelPixel
         odr.applicationRegion.computeBoundingBox(lb,ub);
         DGtal::Z2i::Point appPoint( lb(0), (lb(1)+ub(1))/2);
 
-        DigitalSet appBall(odr.applicationRegion.domain());
-        DIPaCUS::Misc::DigitalBallIntersection::digitalBall(appBall,appPoint,radius);
+        DigitalSet appBall = DIPaCUS::Shapes::ball(1.0,appPoint[0],appPoint[1],radius);
 
         DigitalSet trustIntersect(odr.applicationRegion.domain());
         DigitalSet optIntersect(odr.applicationRegion.domain());

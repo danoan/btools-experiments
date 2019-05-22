@@ -4,8 +4,6 @@ project(layers-intuition)
 find_package(DGtal REQUIRED)
 find_package(OpenCV REQUIRED)
 
-link_libraries(${BOOST_LIBS_DIR})
-
 add_executable(layers-intuition layers-intuition.cpp)
 
 target_compile_definitions(layers-intuition PRIVATE PROJECT_DIR=\"${CMAKE_SOURCE_DIR}\")

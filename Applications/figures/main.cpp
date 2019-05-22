@@ -5,15 +5,19 @@
 #include "linel-pixel.h"
 #include "multigrid.h"
 
-int main()
+int main(int argc, char* argv[])
 {
-    std::string projectDir = PROJECT_DIR;
+    if(argc<2)
+    {
+        std::cerr << "Usage: " << argv[0] << " OUTPUT_FOLDER\n";
+        exit(1);
+    }
 
-
+    std::string baseFolder = argv[1];
     {
         using namespace CellGridModel;
 
-        std::string outputFolder = projectDir + "/output/figures/cell-grid/";
+        std::string outputFolder = baseFolder + "/cell-grid/";
         boost::filesystem::create_directories(outputFolder);
 
         grid_components(outputFolder);
@@ -24,25 +28,25 @@ int main()
     {
         using namespace LinelPixel;
 
-        std::string outputFolder = projectDir + "/output/figures/pixel/dilation";
+        std::string outputFolder = baseFolder + "/pixel/dilation";
         pixel_dilation(outputFolder);
 
 
-        outputFolder = projectDir + "/output/figures/pixel/original";
+        outputFolder = baseFolder + "/pixel/original";
         pixel_original(outputFolder);
 
 
-//        outputFolder = projectDir + "/output/figures/linel/dilation";
+//        outputFolder = outputFolder + "/linel/dilation";
 //        linel_dilation(outputFolder);
 
 
-//        outputFolder = projectDir + "/output/figures/linel/original";
+//        outputFolder = outputFolder + "/linel/original";
 //        linel_original(outputFolder);
     }
 
     {
         using namespace FlowIntuition;
-        std::string outputFolder = projectDir + "/output/figures/flow-intuition/";
+        std::string outputFolder = baseFolder + "/flow-intuition/";
         boost::filesystem::create_directories(outputFolder);
 
         corner(outputFolder);
@@ -52,7 +56,7 @@ int main()
 
     {
         using namespace Multigrid;
-        std::string outputFolder = projectDir + "/output/figures/multigrid/";
+        std::string outputFolder = baseFolder + "/multigrid/";
         boost::filesystem::create_directories(outputFolder);
 
         ball(1,outputFolder);

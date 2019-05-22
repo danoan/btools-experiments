@@ -1,20 +1,26 @@
 cmake_minimum_required(VERSION 3.8)
-project(coefficient-map)
+project(labeling-levels)
 
 find_package(DGtal REQUIRED)
 find_package(OpenCV REQUIRED)
 
 
-add_executable(coefficient-map coefficient-map.cpp)
+add_executable(labeling-levels
+        labeling-levels.cpp
+        src/InputReader.cpp
+        src/dispUtils.cpp
+        src/energyUtils.cpp
+        src/probeSolver.cpp)
 
-target_compile_definitions(coefficient-map PRIVATE PROJECT_DIR=\"${CMAKE_SOURCE_DIR}\")
+target_compile_definitions(labeling-levels PRIVATE PROJECT_DIR=\"${CMAKE_SOURCE_DIR}\")
 
-target_include_directories(coefficient-map PRIVATE
+target_include_directories(labeling-levels PRIVATE
+        include
         ${DIPACUS_INCLUDE_DIRS}
         ${SCABOLIC_INCLUDE_DIRS}
         ${DGTAL_INCLUDE_DIRS})
 
-target_link_libraries(coefficient-map
+target_link_libraries(labeling-levels
         -ldipacus-derivates
         -ldipacus-components
         -ldipacus-base

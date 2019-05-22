@@ -9,21 +9,24 @@ typedef DGtal::Z2i::KSpace KSpace;
 
 struct InputData
 {
-    InputData(double gridStep,unsigned int flowSteps):gridStep(gridStep),flowSteps(flowSteps){};
+    InputData(const std::string& outputFolder,double gridStep,unsigned int flowSteps):outputFolder(outputFolder),
+                                                                                      gridStep(gridStep),
+                                                                                      flowSteps(flowSteps){};
 
+    std::string outputFolder;
     double gridStep;
     unsigned int flowSteps;
 };
 
 InputData readInput(int argc, char* argv[])
 {
-    if(argc<3)
+    if(argc<4)
     {
-        std::cerr << "Usage: mcf grid-step flow-step\n" << std::endl;
+        std::cerr << "Usage: mcf output-folder grid-step flow-step\n" << std::endl;
         exit(1);
     }
 
-    return InputData( std::atof( argv[1] ), (unsigned int) std::atoi(argv[2]) );
+    return InputData( argv[1], std::atof( argv[2] ), (unsigned int) std::atoi(argv[3]) );
 }
 
 double maxInVector(std::vector<double>& v)
@@ -39,7 +42,7 @@ double maxInVector(std::vector<double>& v)
 void flow(DigitalSet& shape, const KSpace& KImage, double gridStep)
 {
     Curve curve;
-    DIPaCUS::Misc::ComputeBoundaryCurve(shape,curve);
+    DIPaCUS::Misc::computeBoundaryCurve(curve,shape);
 
     std::vector<double> ev;
     {
@@ -69,7 +72,7 @@ void flow(DigitalSet& shape, const KSpace& KImage, double gridStep)
 
 }
 
-void startFlow(double gridStep, int flowSteps)
+void startFlow(const std::string& outputFolder,double gridStep, int flowSteps)
 {
     DigitalSet squareDS = DIPaCUS::Shapes::square(gridStep);
 
@@ -85,7 +88,7 @@ void startFlow(double gridStep, int flowSteps)
 
         board.clear();
         board << squareDS;
-        board.saveEPS( ("flow-" + std::to_string(n) + ".eps").c_str());
+        board.saveEPS( (outputFolder + "/flow-" + std::to_string(n) + ".eps").c_str());
 
         --flowSteps;
         ++n;
@@ -98,11 +101,7 @@ void startFlow(double gridStep, int flowSteps)
 int main(int argc, char* argv[])
 {
     InputData id = readInput(argc,argv);
-
-    startFlow(id.gridStep,id.flowSteps);
-
-
-
+    startFlow(id.outputFolder, id.gridStep,id.flowSteps);
 
     return 0;
 }

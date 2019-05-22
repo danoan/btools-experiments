@@ -17,8 +17,8 @@ namespace LinelPixel
         if(cm==CountingMode::CM_PIXEL) fileOutputPath+="cm:pixel_";
         else if(cm==CountingMode::CM_POINTEL) fileOutputPath+="cm:pointel_";
 
-        if(om==OptimizationMode::OM_OriginalBoundary) fileOutputPath+="om:original_";
-        else if(om==OptimizationMode::OM_DilationBoundary) fileOutputPath+="om:dilation_";
+        if(om==OptimizationMode::OM_CorrectConvexities ) fileOutputPath+="om:convexities_";
+        else if(om==OptimizationMode::OM_CorrectConcavities) fileOutputPath+="om:concavities_";
 
         if(am==ApplicationMode::AM_AroundBoundary) fileOutputPath+="am:around_";
         else if(am==ApplicationMode::AM_OptimizationBoundary) fileOutputPath+="am:opt_";
@@ -36,7 +36,7 @@ namespace LinelPixel
 
         saveFigure<ODRInterpixels,RADIUS*2>(SCaBOliC::Core::ODRModel::AC_LINEL,
                                    SCaBOliC::Core::ODRModel::CM_PIXEL,
-                                   SCaBOliC::Core::ODRModel::OM_OriginalBoundary,
+                                   SCaBOliC::Core::ODRModel::OM_CorrectConvexities,
                                    SCaBOliC::Core::ODRModel::AM_OptimizationBoundary,
                                    0,
                                    outputFolder);
@@ -44,7 +44,7 @@ namespace LinelPixel
 
         saveFigure<ODRInterpixels,RADIUS*2>(SCaBOliC::Core::ODRModel::AC_LINEL,
                                    SCaBOliC::Core::ODRModel::CM_PIXEL,
-                                   SCaBOliC::Core::ODRModel::OM_OriginalBoundary,
+                                   SCaBOliC::Core::ODRModel::OM_CorrectConvexities,
                                    SCaBOliC::Core::ODRModel::AM_InternRange,
                                    0,
                                    outputFolder);
@@ -52,7 +52,7 @@ namespace LinelPixel
 
         saveFigure<ODRInterpixels,RADIUS*2>(SCaBOliC::Core::ODRModel::AC_LINEL,
                                    SCaBOliC::Core::ODRModel::CM_PIXEL,
-                                   SCaBOliC::Core::ODRModel::OM_OriginalBoundary,
+                                   SCaBOliC::Core::ODRModel::OM_CorrectConvexities,
                                    SCaBOliC::Core::ODRModel::AM_InternRange,
                                    1,
                                    outputFolder);
@@ -61,7 +61,7 @@ namespace LinelPixel
 
         saveFigure<ODRInterpixels,RADIUS*2>(SCaBOliC::Core::ODRModel::AC_LINEL,
                                    SCaBOliC::Core::ODRModel::CM_PIXEL,
-                                   SCaBOliC::Core::ODRModel::OM_OriginalBoundary,
+                                   SCaBOliC::Core::ODRModel::OM_CorrectConvexities,
                                    SCaBOliC::Core::ODRModel::AM_InternRange,
                                    2,
                                    outputFolder);
@@ -72,7 +72,7 @@ namespace LinelPixel
     {
         saveFigure<ODRInterpixels,RADIUS*2>(SCaBOliC::Core::ODRModel::AC_LINEL,
                                    SCaBOliC::Core::ODRModel::CM_PIXEL,
-                                   SCaBOliC::Core::ODRModel::OM_DilationBoundary,
+                                   SCaBOliC::Core::ODRModel::OM_CorrectConcavities,
                                    SCaBOliC::Core::ODRModel::AM_OptimizationBoundary,
                                    0,
                                    outputFolder);
@@ -80,7 +80,7 @@ namespace LinelPixel
 
         saveFigure<ODRInterpixels,RADIUS*2>(SCaBOliC::Core::ODRModel::AC_LINEL,
                                    SCaBOliC::Core::ODRModel::CM_PIXEL,
-                                   SCaBOliC::Core::ODRModel::OM_DilationBoundary,
+                                   SCaBOliC::Core::ODRModel::OM_CorrectConcavities,
                                    SCaBOliC::Core::ODRModel::AM_InternRange,
                                    0,
                                    outputFolder);
@@ -88,7 +88,7 @@ namespace LinelPixel
 
         saveFigure<ODRInterpixels,RADIUS*2>(SCaBOliC::Core::ODRModel::AC_LINEL,
                                    SCaBOliC::Core::ODRModel::CM_PIXEL,
-                                   SCaBOliC::Core::ODRModel::OM_DilationBoundary,
+                                   SCaBOliC::Core::ODRModel::OM_CorrectConcavities,
                                    SCaBOliC::Core::ODRModel::AM_InternRange,
                                    1,
                                    outputFolder);
@@ -97,7 +97,7 @@ namespace LinelPixel
 
         saveFigure<ODRInterpixels,RADIUS*2>(SCaBOliC::Core::ODRModel::AC_LINEL,
                                    SCaBOliC::Core::ODRModel::CM_PIXEL,
-                                   SCaBOliC::Core::ODRModel::OM_DilationBoundary,
+                                   SCaBOliC::Core::ODRModel::OM_CorrectConcavities,
                                    SCaBOliC::Core::ODRModel::AM_InternRange,
                                    2,
                                    outputFolder);
@@ -109,14 +109,14 @@ namespace LinelPixel
 
         saveFigure<ODRPixels,RADIUS>(SCaBOliC::Core::ODRModel::AC_PIXEL,
                                    SCaBOliC::Core::ODRModel::CM_PIXEL,
-                                   SCaBOliC::Core::ODRModel::OM_DilationBoundary,
+                                   SCaBOliC::Core::ODRModel::OM_CorrectConcavities,
                                    SCaBOliC::Core::ODRModel::AM_OptimizationBoundary,
                                    0,
                                    outputFolder);
 
         saveFigure<ODRPixels,RADIUS>(SCaBOliC::Core::ODRModel::AC_PIXEL,
                                    SCaBOliC::Core::ODRModel::CM_PIXEL,
-                                   SCaBOliC::Core::ODRModel::OM_DilationBoundary,
+                                   SCaBOliC::Core::ODRModel::OM_CorrectConcavities,
                                    SCaBOliC::Core::ODRModel::AM_AroundBoundary,
                                    1,
                                    outputFolder);
@@ -125,7 +125,7 @@ namespace LinelPixel
 
         saveFigure<ODRPixels,RADIUS>(SCaBOliC::Core::ODRModel::AC_PIXEL,
                                    SCaBOliC::Core::ODRModel::CM_PIXEL,
-                                   SCaBOliC::Core::ODRModel::OM_DilationBoundary,
+                                   SCaBOliC::Core::ODRModel::OM_CorrectConcavities,
                                    SCaBOliC::Core::ODRModel::AM_AroundBoundary,
                                    2,
                                    outputFolder);
@@ -137,14 +137,14 @@ namespace LinelPixel
 
         saveFigure<ODRPixels,RADIUS>(SCaBOliC::Core::ODRModel::AC_PIXEL,
                               SCaBOliC::Core::ODRModel::CM_PIXEL,
-                              SCaBOliC::Core::ODRModel::OM_OriginalBoundary,
+                              SCaBOliC::Core::ODRModel::OM_CorrectConvexities,
                               SCaBOliC::Core::ODRModel::AM_OptimizationBoundary,
                               0,
                               outputFolder);
 
         saveFigure<ODRPixels,RADIUS>(SCaBOliC::Core::ODRModel::AC_PIXEL,
                               SCaBOliC::Core::ODRModel::CM_PIXEL,
-                              SCaBOliC::Core::ODRModel::OM_OriginalBoundary,
+                              SCaBOliC::Core::ODRModel::OM_CorrectConvexities,
                               SCaBOliC::Core::ODRModel::AM_AroundBoundary,
                               1,
                               outputFolder);
@@ -152,7 +152,7 @@ namespace LinelPixel
 
         saveFigure<ODRPixels,RADIUS>(SCaBOliC::Core::ODRModel::AC_PIXEL,
                               SCaBOliC::Core::ODRModel::CM_PIXEL,
-                              SCaBOliC::Core::ODRModel::OM_OriginalBoundary,
+                              SCaBOliC::Core::ODRModel::OM_CorrectConvexities,
                               SCaBOliC::Core::ODRModel::AM_AroundBoundary,
                               2,
                               outputFolder);

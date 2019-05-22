@@ -20,9 +20,7 @@ void paint(DGtal::Board2D& board, const TType& ds, DGtal::Color colorFill,DGtal:
 
 DigitalSet ball(const Domain& domain, Point center, int level, double radius)
 {
-    DigitalSet ballDS(domain);
-    DIPaCUS::Misc::DigitalBallIntersection::digitalBall(ballDS,center,radius);
-
+    DigitalSet ballDS = DIPaCUS::Shapes::ball(1.0,center[0],center[1],radius);
     return ballDS;
 }
 
@@ -58,7 +56,7 @@ void corner(const std::string& outputFolder)
         paint(board,ballDS,Color::Blue);
         paint(board,intersection,Color::Cyan);
 
-        board.saveEPS( (outputFolder + "/corner-level-" + std::to_string(level[i]) + ".eps").c_str() );
+        board.saveSVG( (outputFolder + "/corner-level-" + std::to_string(level[i]) + ".eps").c_str(),200,200,10 );
     }
 }
 
@@ -94,14 +92,19 @@ void flat(const std::string& outputFolder)
         paint(board,ballDS,Color::Blue);
         paint(board,intersection,Color::Cyan);
 
-        board.saveEPS( (outputFolder + "/flat-level-" + std::to_string(level[i]) + ".eps").c_str() );
+        board.saveSVG( (outputFolder + "/flat-level-" + std::to_string(level[i]) + ".eps").c_str(),200,200,10 );
     }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    std::string outputFolder = PROJECT_DIR;
-    outputFolder += "/output/layers-intuition";
+    if(argc<2)
+    {
+        std::cerr << "Usage: " << argv[1] << " OUTPUT_FOLDER\n";
+        exit(1);
+    }
+
+    std::string outputFolder = argv[1];
 
     boost::filesystem::create_directories(outputFolder);
 

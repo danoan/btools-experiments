@@ -4,8 +4,6 @@ project(figures)
 find_package(DGtal REQUIRED)
 find_package(OpenCV REQUIRED)
 
-link_libraries(${BOOST_LIBS_DIR})
-
 add_executable(figures main.cpp src/cell-grid-model.cpp src/flow-intuition.cpp src/linel-pixel.cpp src/utils.cpp src/multigrid.cpp)
 
 target_compile_definitions(figures PRIVATE PROJECT_DIR=\"${CMAKE_SOURCE_DIR}\")

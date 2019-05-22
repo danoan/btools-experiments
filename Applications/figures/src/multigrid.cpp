@@ -20,7 +20,7 @@ namespace Multigrid
         const Domain& domain = ballDS.domain();
 
         Curve ballBoundary;
-        DIPaCUS::Misc::ComputeBoundaryCurve(ballDS,ballBoundary);
+        DIPaCUS::Misc::computeBoundaryCurve(ballBoundary,ballDS);
 
         std::vector<double> ev;
 

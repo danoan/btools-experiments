@@ -55,7 +55,7 @@ namespace CellGridModel
 
 
         Curve beanCurve;
-        DIPaCUS::Misc::ComputeBoundaryCurve(beanDS,beanCurve);
+        DIPaCUS::Misc::computeBoundaryCurve(beanCurve,beanDS);
 
         Board2D board;
         board << beanDomain;
@@ -69,7 +69,7 @@ namespace CellGridModel
 
 
         DigitalSet boundaryDS(beanDomain);
-        DIPaCUS::Misc::DigitalBoundary<DIPaCUS::Neighborhood::FourNeighborhoodPredicate>(boundaryDS,beanDS);
+        DIPaCUS::Misc::digitalBoundary<DIPaCUS::Neighborhood::FourNeighborhoodPredicate>(boundaryDS,beanDS);
 
         board.clear();
         board << beanDomain;
@@ -86,7 +86,7 @@ namespace CellGridModel
         DIPaCUS::Representation::imageAsDigitalSet(beanDS,imagesDir()+"/bean-shape-super-dwarf.pgm");
 
         DigitalSet boundaryDS(beanDomain);
-        DIPaCUS::Misc::DigitalBoundary<DIPaCUS::Neighborhood::FourNeighborhoodPredicate>(boundaryDS,beanDS);
+        DIPaCUS::Misc::digitalBoundary<DIPaCUS::Neighborhood::FourNeighborhoodPredicate>(boundaryDS,beanDS);
 
 
         Board2D board;
@@ -97,8 +97,7 @@ namespace CellGridModel
         Point ur = *beanDS.begin();
 
         unsigned int radius=3;
-        DigitalSet ball(beanDomain);
-        DIPaCUS::Misc::DigitalBallIntersection::digitalBall(ball,ur,radius);
+        DigitalSet ball = DIPaCUS::Shapes::ball(1.0,ur[0],ur[1],radius);
 
         DigitalSet intersection(beanDomain);
         DIPaCUS::Misc::DigitalBallIntersection DBI(radius,beanDS);

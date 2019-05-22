@@ -13,14 +13,13 @@ namespace FlowIntuition
         const Domain& domain = square.domain();
 
         DigitalSet boundarySet(domain);
-        DIPaCUS::Misc::DigitalBoundary<DIPaCUS::Neighborhood::FourNeighborhoodPredicate>(boundarySet,square);
+        DIPaCUS::Misc::digitalBoundary<DIPaCUS::Neighborhood::FourNeighborhoodPredicate>(boundarySet,square);
 
         Point bl,ur;
         square.computeBoundingBox(bl,ur);
 
         unsigned int radius=3;
-        DigitalSet ball(domain);
-        DIPaCUS::Misc::DigitalBallIntersection::digitalBall(ball,ur,radius);
+        DigitalSet ball = DIPaCUS::Shapes::ball(1.0,ur[0],ur[1],radius);
 
         DigitalSet intersection(domain);
         DIPaCUS::Misc::DigitalBallIntersection DBI(radius,square);
@@ -50,7 +49,7 @@ namespace FlowIntuition
         const Domain& domain = square.domain();
 
         DigitalSet boundarySet(domain);
-        DIPaCUS::Misc::DigitalBoundary<DIPaCUS::Neighborhood::FourNeighborhoodPredicate>(boundarySet,square);
+        DIPaCUS::Misc::digitalBoundary<DIPaCUS::Neighborhood::FourNeighborhoodPredicate>(boundarySet,square);
 
         Point bl,ur;
         square.computeBoundingBox(bl,ur);
@@ -58,8 +57,7 @@ namespace FlowIntuition
         Point flat_point( (int) (bl(0) + ur(0))/2,ur(1) );
 
         unsigned int radius=3;
-        DigitalSet ball(domain);
-        DIPaCUS::Misc::DigitalBallIntersection::digitalBall(ball,flat_point,radius);
+        DigitalSet ball = DIPaCUS::Shapes::ball(1.0,flat_point[0],flat_point[1],radius);
 
         DigitalSet intersection(domain);
         DIPaCUS::Misc::DigitalBallIntersection DBI(radius,square);

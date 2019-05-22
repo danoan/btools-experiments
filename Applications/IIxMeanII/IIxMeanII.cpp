@@ -1,3 +1,5 @@
+#include <boost/filesystem.hpp>
+
 #include <DGtal/helpers/StdDefs.h>
 #include <DGtal/shapes/parametric/Ball2D.h>
 #include <DGtal/shapes/GaussDigitizer.h>
@@ -30,7 +32,6 @@ struct CurveAndDS
 double meanII(DigitalSet& ds,double h)
 {
     typedef DIPaCUS::Neighborhood::EightNeighborhoodPredicate MyNeighPred;
-    typedef DIPaCUS::Misc::DigitalBoundary<MyNeighPred> MyDigBoundary;
 
     const int RADIUS = 3;
     const double PI = 3.14159265359;
@@ -58,10 +59,10 @@ double meanII(DigitalSet& ds,double h)
 
 
     DigitalSet eBoundary(myDomain);
-    MyDigBoundary(eBoundary,eroded);
+    DIPaCUS::Misc::digitalBoundary<MyNeighPred>(eBoundary,eroded);
 
     DigitalSet dBoundary(myDomain);
-    MyDigBoundary(dBoundary,dilated);
+    DIPaCUS::Misc::digitalBoundary<MyNeighPred>(dBoundary,dilated);
 
     DigitalSet application(centeredDS.domain());
     application.insert(eBoundary.begin(),eBoundary.end());
@@ -117,7 +118,7 @@ CurveAndDS prepareDigitalObjects(double radius, double h)
     c.initFromVector(vectorOfPoint);
 
     DGtal::Z2i::DigitalSet ds(domain);
-    DIPaCUS::Misc::CompactSetFromClosedCurve<Curve::ConstIterator>(ds,c.begin(),c.end());
+    DIPaCUS::Misc::compactSetFromClosedCurve<Curve::ConstIterator>(ds,c.begin(),c.end());
 
     return CurveAndDS(c,ds);
 }
@@ -135,9 +136,9 @@ double maxDiff(const std::vector<double>& compare,
     }
 }
 
-void testConvergence(double radius, double h)
+void testConvergence(std::ofstream& ofs, double radius, double h)
 {
-    std::cout << "Test Convergence (radius=" << radius << ",h=" << h << ")" << std::endl;
+    ofs << "Test Convergence (radius=" << radius << ",h=" << h << ")\n";
 
     CurveAndDS cd = prepareDigitalObjects(radius,h);
     Curve& c = cd.curve;
@@ -162,7 +163,7 @@ void testConvergence(double radius, double h)
 
     double maxDiffII = maxDiff(estimationsII,estimationsMDCA);
 
-    std::cout << "Max Diff II: " << maxDiffII << std::endl;
+    ofs << "Max Diff II: " << maxDiffII << "\n";
 
 
     double meanIntCurv=0;
@@ -177,15 +178,25 @@ void testConvergence(double radius, double h)
     iiIntCurv*=h;
     mdcaIntCurv*=h;
 
-    std::cout << "Mean IC: " << meanIntCurv << std::endl;
-    std::cout << "MDCA IC: " << mdcaIntCurv << std::endl;
-    std::cout << "II IC: " << iiIntCurv << std::endl;
+    ofs << "Mean IC: " << meanIntCurv << "\n";
+    ofs << "MDCA IC: " << mdcaIntCurv << "\n";
+    ofs << "II IC: " << iiIntCurv << "\n";
 
 }
 
 int main(int argc, char* argv[])
 {
-    testConvergence(5,1);
-    testConvergence(5,0.5);
-//    testConvergence(5,0.1);
+    if(argc<2)
+    {
+        std::cerr << "Usage: " << argv[1] << " OUTPUT_FOLDER\n";
+        exit(1);
+    }
+
+    std::string outputFolder = argv[1];
+    boost::filesystem::create_directories(outputFolder);
+    std::ofstream ofs(outputFolder + "/out.txt");
+
+    testConvergence(ofs,5,1);
+    testConvergence(ofs,5,0.5);
+//    testConvergence(ofs, 5,0.1);
 }

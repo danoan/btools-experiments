@@ -21,6 +21,7 @@ target_link_libraries(dcf-lp
         -lscabolic-optimization
         -lscabolic-core
         -lscabolic-energy
+        -lbtools-reader
         -lboost_filesystem
         -lboost_system
         -lglpk

@@ -12,5 +12,7 @@ target_link_libraries(iixmeanii
         -ldipacus-derivates
         -ldipacus-components
         -ldipacus-base
+        -lboost_filesystem
+        -lboost_system
         ${DGTAL_LIBRARIES}
         ${OpenCV_LIBS})
