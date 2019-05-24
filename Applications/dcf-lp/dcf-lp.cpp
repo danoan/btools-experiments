@@ -311,8 +311,8 @@ EnergyData sqTerm(const DigitalSet& dsInput,
                         1.0,
                         input.levels,
                         input.ld,
-                        input.neighborhood,
-                        input.seType);
+                        ODRModel::NeighborhoodType::FourNeighborhood,
+                        ODRModel::StructuringElementType::RECT);
 
 
     ODRModel ODR = odrPixels.createODR(input.om,
@@ -325,8 +325,8 @@ EnergyData sqTerm(const DigitalSet& dsInput,
                       fgDistr,
                       bgDistr,
                       input.excludeOptPointsFromAreaComputation,
-                      input.penalizationMode,
-                      input.repeatedImprovement,
+                      DCFReader::InputData::PenalizationMode::No_Penalization,
+                      false,
                       0,
                       input.sqWeight,
                       0);
@@ -378,6 +378,9 @@ DCFReader::InputData defaultValues()
     id.levels = 3;
     id.iterations = 10;
     id.gridStep=1.0;
+    id.sqWeight = 1.0;
+    id.optRegionInApplication = false;
+    id.excludeOptPointsFromAreaComputation=false;
 
     return id;
 };
