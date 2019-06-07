@@ -234,7 +234,7 @@ int main()
 
 //        if(i%2==0)
 //        {
-            square = iteration(square,curve,inCurve,0.25);
+            square = iteration(square,curve,inCurve,1);
 //        }
 //        else
 //        {
