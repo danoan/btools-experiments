@@ -1,9 +1,11 @@
+#include <boost/filesystem.hpp>
 #include <DGtal/helpers/StdDefs.h>
 
 #include <DIPaCUS/base/Representation.h>
 #include <DIPaCUS/base/Shapes.h>
 #include <DIPaCUS/components/Morphology.h>
 #include <BTools/reader/Types.h>
+#include <BTools/utils/imgUtils.h>
 
 using namespace DGtal::Z2i;
 
@@ -12,8 +14,7 @@ typedef BTools::Reader::DCFReader::ShapeType ShapeType;
 
 struct InputData
 {
-    typedef DIPaCUS::Morphology::StructuringElement::Type ElementType;
-
+    enum ElementType{RECT = cv::MORPH_RECT, CROSS = cv::MORPH_CROSS, ELLIPSE = cv::MORPH_ELLIPSE};
     enum Operation{DILATION,EROSION,OPENING,CLOSING};
 
     InputData()
@@ -60,7 +61,7 @@ InputData readInput(int argc, char* argv[])
             {
                 if(strcmp(optarg,"rect")==0) id.elementType = InputData::ElementType::RECT;
                 else if(strcmp(optarg,"cross")==0) id.elementType = InputData::ElementType::CROSS;
-                //else if(strcmp(optarg,"ellipse")==0) id.elementType = InputData::ElementType::ELLIPSE;
+                else if(strcmp(optarg,"ellipse")==0) id.elementType = InputData::ElementType::ELLIPSE;
                 else throw std::runtime_error("Element not recognized!");
                 break;
             }
@@ -138,4 +139,49 @@ int main(int argc,char* argv[])
 {
     InputData id = readInput(argc,argv);
     DigitalSet ds = resolveShape(id.shape,id.gridStep);
+
+    boost::filesystem::create_directories(id.outputFolder);
+
+    typedef DIPaCUS::Morphology::StructuringElement StructuringElement;
+    StructuringElement se( (DIPaCUS::Morphology::StructuringElement::Type) id.elementType,id.elementSize);
+
+    Domain domain( ds.domain().lowerBound() - Point(100,100), ds.domain().upperBound() + Point(100,100));
+    DigitalSet dsIn(domain);
+    DigitalSet dsOut(domain);
+
+    dsIn.insert(ds.begin(),ds.end());
+    int i=0;
+    while(i<id.iterations)
+    {
+        switch(id.operation)
+        {
+            case InputData::Operation::DILATION:
+            {
+                DIPaCUS::Morphology::dilate(dsOut,dsIn,se,1);
+                break;
+            }
+            case InputData::Operation::EROSION:
+            {
+                DIPaCUS::Morphology::erode(dsOut,dsIn,se,1);
+                break;
+            }
+            case InputData::Operation::OPENING:
+            {
+                DIPaCUS::Morphology::opening(dsOut,dsIn,se,1);
+                break;
+            }
+            case InputData::Operation::CLOSING:
+            {
+                DIPaCUS::Morphology::closing(dsOut,dsIn,se,1);
+                break;
+            }
+        }
+
+        BTools::Utils::exportImageFromDigitalSet(dsOut,id.outputFolder + "/" + std::to_string(i) + ".pgm");
+
+        dsIn = dsOut;
+        ++i;
+    }
+
+    return 0;
 }

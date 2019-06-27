@@ -1,8 +1,8 @@
 #ifndef EXPERIMENTS_LINEL_PIXEL_H
 #define EXPERIMENTS_LINEL_PIXEL_H
 
-#include "SCaBOliC/Core/ODRModel.h"
-#include "SCaBOliC/Core/ODRPixels.h"
+#include "SCaBOliC/Core/model/ODRModel.h"
+#include "SCaBOliC/Core/ODRPixels/ODRPixels.h"
 #include "SCaBOliC/Core/ODRInterpixels.h"
 
 #include <DGtal/io/boards/Board2D.h>
