@@ -10,7 +10,7 @@ add_executable(labeling-levels
         src/InputReader.cpp
         src/dispUtils.cpp
         src/energyUtils.cpp
-        src/probeSolver.cpp)
+        src/countUnlabeled.cpp)
 
 target_compile_definitions(labeling-levels PRIVATE PROJECT_DIR=\"${CMAKE_SOURCE_DIR}\")
 
