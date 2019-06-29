@@ -4,7 +4,10 @@ CountData countUnlabeled(const InputData& input,
                     const DigitalSet& dsInput)
 {
     ODRModel::OptimizationMode optMode;
-    optMode = ODRModel::OptimizationMode::OM_CorrectConcavities;
+    if(input.mode==InputData::Concavities)
+        optMode = ODRModel::OptimizationMode::OM_CorrectConcavities;
+    else
+        optMode = ODRModel::OptimizationMode::OM_CorrectConvexities;
 
 
     typedef DGtal::Z2i::Point Point;
