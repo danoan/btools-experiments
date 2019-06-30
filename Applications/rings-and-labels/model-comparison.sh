@@ -10,18 +10,19 @@ model()
     shape=$1
     method=$2
     mode=$3
+    gs=$4
 
-    $APP ${BASE_FOLDER}/flows/$shape/probe/L5 ${BASE_FOLDER}/model/$shape/$method/$mode $method $mode
+    $APP ${BASE_FOLDER}/flows/h$gs/$shape/probe/L5 ${BASE_FOLDER}/model/h$gs/$shape/$method/$mode $method $mode
 }
 
-model square concavities probe&
-model square concavities improve&
+model square probe concavities 0.5&
+model square improve concavities 0.5&
 
-model square convexities probe&
-model square convexities improve&
+model square probe convexities 0.5&
+model square improve convexities 0.5&
 
-#model flower concavities probe
-#model flower concavities improve
-#
-#model flower convexities probe
-#model flower convexities improve
+model flower probe concavities 0.5&
+model flower improve concavities 0.5&
+
+model flower probe convexities 0.5&
+model flower improve convexities 0.5&
