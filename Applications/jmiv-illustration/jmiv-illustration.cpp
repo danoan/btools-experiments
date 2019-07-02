@@ -1,14 +1,15 @@
 #include <boost/filesystem.hpp>
 
-#include <exhaustive-gc/core/control/CurveCandidatesGenerator.h>
-#include <exhaustive-gc/core/checker/GluedIntersectionChecker.h>
-#include <exhaustive-gc/core/checker/MinimumDistanceChecker.h>
+#include <exhaustive-gc/core/check-elem/CheckableSeedPair.h>
+#include <exhaustive-gc/core/control/CurveFromJoints.h>
 
 #include <exhaustive-gc/api/utils/GenerateSeedPairs.h>
 #include <exhaustive-gc/api/utils/FilterSeedPairs.h>
 #include <exhaustive-gc/api/model/SearchParameters.h>
 #include <exhaustive-gc/energy/EnergyInput.h>
 #include <exhaustive-gc/energy/EnergyType.h>
+
+#include <lazy-comb/LazyCombinations.h>
 
 #include <DIPaCUS/base/Shapes.h>
 #include <gcurve/utils/displayUtils.h>
@@ -26,12 +27,17 @@ void gluedCurve(std::string& outputFilePath)
 
 
     typedef GenerateSeedPairs::SeedPair SeedPair;
+    typedef ExhaustiveGC::CheckableSeedPair CheckableSeedPair;
+    typedef ExhaustiveGC::CurveFromJoints CurveFromJoints;
+
     typedef std::vector< CheckableSeedPair > CheckableSeedPairVector;
+    typedef LazyCombinator::LazyCombinations<CheckableSeedPairVector> MyLazyCombinations;
+
 
     DigitalSet ds = DIPaCUS::Shapes::square();
 
     EnergyInput energyInput(EnergyType::Elastica,EnergyInput::MDCA,1.0,5,0.001);
-    SearchParameters sp(SearchParameters::Strategy::Best, 1, 11, 12,energyInput);
+    SearchParameters sp(SearchParameters::Strategy::Best, 1, 11, 12,energyInput,2,1000);
 
     const DGtal::Z2i::Domain& domain = ds.domain();
     KSpace kspace;
@@ -50,12 +56,6 @@ void gluedCurve(std::string& outputFilePath)
     std::for_each(spl.begin(),spl.end(),[&cspv](SeedPair sp) mutable {cspv.push_back( CheckableSeedPair(sp) );});
 
 
-    CurveCandidatesGenerator CE(sp.jointPairs,sp.strategy);
-    CE.registerChecker( new GluedIntersectionChecker() );
-    CE.registerChecker( new MinimumDistanceChecker(kspace) );
-
-
-
     DGtal::Board2D board;
     board << ds;
 
@@ -66,16 +66,7 @@ void gluedCurve(std::string& outputFilePath)
     GCurve::Utils::drawCurve(board,DGtal::Color::Silver,DGtal::Color::Silver,outC,outC);
 
 
-    CurveCandidatesGenerator::MyLazyCombinations myCombinations(cspv,sp.jointPairs);
-
-    for(auto itc=CE.cBegin();itc!=CE.cEnd();++itc)
-    {
-        for (auto it = cspv.begin(); it != cspv.end(); ++it) {
-            (*itc)->unmark(*it);
-        }
-        myCombinations.addConsistencyChecker(*itc);
-    }
-
+    MyLazyCombinations myCombinations(cspv,sp.jointPairs);
 
     Curve curve;
     CheckableSeedPair seedCombination[sp.jointPairs];
@@ -103,10 +94,10 @@ void modelRegions(std::string& outputFilePath)
 {
     using namespace SCaBOliC::Core;
 
-    DigitalSet square = DIPaCUS::Shapes::square(1.0,0,0,10);
+    DigitalSet square = DIPaCUS::Shapes::flower(1.0,0,0,15,3,2);
     SCaBOliC::Core::ODRPixels odrPixels(3,
                                         1.0,
-                                        2,
+                                        4,
                                         ODRModel::LevelDefinition::LD_CloserFromCenter,
                                         ODRModel::FourNeighborhood);
     ODRModel ODR = odrPixels.createODR(ODRModel::OM_CorrectConvexities,
@@ -120,11 +111,11 @@ void modelRegions(std::string& outputFilePath)
 
     std::string specificStyle = ODR.original.className() + "/Paving";
 
-    board << DGtal::CustomStyle(specificStyle, new DGtal::CustomColors(DGtal::Color::Silver, DGtal::Color::Blue));
-    board << ODR.applicationRegion;
-
     board << DGtal::CustomStyle(specificStyle, new DGtal::CustomColors(DGtal::Color::Silver, DGtal::Color::Green));
     board << ODR.optRegion;
+
+    board << DGtal::CustomStyle(specificStyle, new DGtal::CustomColors(DGtal::Color::Silver, DGtal::Color::Blue));
+    board << ODR.applicationRegion;
 
     board.saveEPS(outputFilePath.c_str());
 
@@ -139,8 +130,9 @@ int main(int argc, char* argv[])
     }
 
     std::string outputFilePath = argv[1];
-    gluedCurve(outputFilePath);
-    //modelRegions(outputFilePath);
+    //gluedCurve(outputFilePath);
+    modelRegions(outputFilePath);
 
     return 0;
 }
+

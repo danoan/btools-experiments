@@ -11,18 +11,37 @@ model()
     method=$2
     mode=$3
     gs=$4
+    radius=$5
 
-    $APP ${BASE_FOLDER}/flows/h$gs/$shape/probe/L5 ${BASE_FOLDER}/model/h$gs/$shape/$method/$mode $method $mode
+    $APP ${BASE_FOLDER}/flows/h$gs/$shape/probe/L$radius ${BASE_FOLDER}/model/h$gs/radius-$radius/$shape/$method/$mode $method $mode
 }
 
-model square probe concavities 0.5&
-model square improve concavities 0.5&
+collection_model()
+{
+    shape=$1
+    gs=$2
 
-model square probe convexities 0.5&
-model square improve convexities 0.5&
+    model $shape probe concavities $gs 3&
+    model $shape probe convexities $gs 3&
 
-model flower probe concavities 0.5&
-model flower improve concavities 0.5&
+    model $shape probe concavities $gs 5&
+    model $shape probe convexities $gs 5&
 
-model flower probe convexities 0.5&
-model flower improve convexities 0.5&
+    model $shape probe concavities $gs 7&
+    model $shape probe convexities $gs 7&
+
+    model $shape probe concavities $gs 9&
+    model $shape probe convexities $gs 9&
+
+    wait
+}
+
+collection_model square 1.0
+collection_model flower 1.0
+
+collection_model square 0.5
+collection_model flower 0.5
+
+collection_model square 0.25
+collection_model flower 0.25
+

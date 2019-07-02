@@ -10,14 +10,41 @@ individual()
     shape=$1
     mode=$2
     gs=$3
+    radius=$4
 
-    $APP ${BASE_FOLDER}/flows/h$gs/$shape/probe/L1 ${BASE_FOLDER}/individual/h$gs/$shape/probe/$mode/L1.txt probe $mode 1&
-    $APP ${BASE_FOLDER}/flows/h$gs/$shape/probe/L2 ${BASE_FOLDER}/individual/h$gs/$shape/probe/$mode/L2.txt probe $mode 2&
-    $APP ${BASE_FOLDER}/flows/h$gs/$shape/probe/L3 ${BASE_FOLDER}/individual/h$gs/$shape/probe/$mode/L3.txt probe $mode 3&
-    $APP ${BASE_FOLDER}/flows/h$gs/$shape/probe/L4 ${BASE_FOLDER}/individual/h$gs/$shape/probe/$mode/L4.txt probe $mode 4
+    i=1
+    while [ $i -le $radius ]
+    do
+        $APP ${BASE_FOLDER}/flows/h$gs/radius-$radius/$shape/probe/L$i ${BASE_FOLDER}/individual/h$gs/radius-$radius/$shape/probe/$mode/L$i.txt probe $mode $i&
+        i=$[$i+1]
+    done
+
+    wait
 }
 
-individual square concavities 0.5&
-individual square convexities 0.5&
-individual flower convexities 0.5&
-individual flower concavities 0.5
+collection_individual()
+{
+    shape=$1
+    gs=$2
+
+    individual $shape concavities $gs 3
+    individual $shape convexities $gs 3
+
+    individual $shape concavities $gs 5
+    individual $shape convexities $gs 5
+
+    individual $shape concavities $gs 7
+    individual $shape convexities $gs 7
+
+    individual $shape concavities $gs 9
+    individual $shape convexities $gs 9
+}
+
+collection_individual square 1.0
+collection_individual flower 1.0
+
+collection_individual square 0.5
+collection_individual flower 0.5
+
+collection_individual square 0.25
+collection_individual flower 0.25

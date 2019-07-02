@@ -64,26 +64,55 @@ create_multiplot()
 }
 
 BASE_FOLDER=$(realpath $1)
-PLOTS_OUTPUT=${BASE_FOLDER}/plots-out
-mkdir -p $PLOTS_OUTPUT
 
 model_plot()
 {
 	shape=$1
 	mode=$2
 	method=$3
-    	gs=$4
+    gs=$4
+    radius=$5
 
+    PLOTS_OUTPUT=${BASE_FOLDER}/output/plots/pairwise-proportion/h$gs/radius-$radius
+    mkdir -p $PLOTS_OUTPUT
 	OUTPUT_PLOT=${PLOTS_OUTPUT}/plot-model-$shape-$mode-$method.eps
-	create_multiplot $OUTPUT_PLOT "Unlabeled" "${BASE_FOLDER}/output/model/h$gs/$shape/$method/$mode/level-1.txt" "m=1" \
-	"${BASE_FOLDER}/output/model/h$gs/$shape//$method/$mode/level-2.txt" "m=2" \
-	"${BASE_FOLDER}/output/model/h$gs/$shape/$method/$mode/level-3.txt" "m=3" \
-	"${BASE_FOLDER}/output/model/h$gs/$shape/$method/$mode/level-4.txt" "m=4" \
-	"${BASE_FOLDER}/output/model/h$gs/$shape/$method/$mode/level-5.txt" "m=5"
+	DATA_FOLDER=${BASE_FOLDER}/output/model/h$gs/radius-$radius/$shape/$method/$mode
+
+	i=1
+	PLOT_STRING="Unlabeled"
+	while [ $i -le $radius ]
+	do
+	  PLOT_STRING=" ${PLOT_STRING} ${DATA_FOLDER}/level-$i.txt m=$i"
+	  i=$[$i+1]
+    done
+
+	create_multiplot $OUTPUT_PLOT $PLOT_STRING
 }
 
+plot_collection()
+{
+    shape=$1
+    gs=$2
 
-model_plot square concavities probe 0.5
-model_plot square convexities probe 0.5
-model_plot flower concavities probe 0.5
-model_plot flower convexities probe 0.5
+    model_plot $shape concavities probe $gs 3
+    model_plot $shape convexities probe $gs 3
+
+    model_plot $shape concavities probe $gs 5
+    model_plot $shape convexities probe $gs 5
+
+    model_plot $shape concavities probe $gs 7
+    model_plot $shape convexities probe $gs 7
+
+    model_plot $shape concavities probe $gs 9
+    model_plot $shape convexities probe $gs 9
+}
+
+plot_collection square 1.0
+plot_collection flower 1.0
+
+plot_collection square 0.5
+plot_collection flower 0.5
+
+plot_collection square 0.25
+plot_collection flower 0.25
+
