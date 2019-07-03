@@ -8,8 +8,6 @@
 #include "countUnlabeled.h"
 #include "utils.h"
 
-#define STREAMS 5
-
 int main(int argc, char* argv[])
 {
     if(argc<3)
@@ -28,12 +26,14 @@ int main(int argc, char* argv[])
     if(strcmp(argv[4],"concavities")==0) id.mode = InputData::Concavities;
     else id.mode = InputData::Convexities;
 
+    id.radius = std::atoi( argv[5] );
+
 
     boost::filesystem::create_directories(outputFolder);
 
-    std::vector<UnlabeledRow> data[STREAMS];
-    std::ofstream* streams[STREAMS];
-    for(int i=0;i<STREAMS;++i) streams[i] = new std::ofstream(outputFolder + "/level-" + std::to_string(i+1) + ".txt",std::ios::out);
+    std::vector<std::vector<UnlabeledRow> > data(id.radius);
+    std::ofstream** streams = (std::ofstream**) malloc(sizeof(std::ofstream*)*id.radius);
+    for(int i=0;i<id.radius;++i) streams[i] = new std::ofstream(outputFolder + "/level-" + std::to_string(i+1) + ".txt",std::ios::out);
 
 
     boost::filesystem::directory_iterator di(imagesFolder);
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
         if(boost::filesystem::is_regular_file(currPath) && currPath.extension().string()==".pgm")
         {
             std::cout << "Analysis of image: " << imageNum << std::endl;
-            for(int i=0;i<STREAMS;++i)
+            for(int i=0;i<id.radius;++i)
             {
                 id.levels = i+1;
                 CountData cd = countUnlabeled(id,digitalSetFromImage(currPath.string()));
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
         ++di;
     }
 
-    for(int i=0;i<STREAMS;++i)
+    for(int i=0;i<id.radius;++i)
     {
         std::sort(data[i].begin(),data[i].end());
 

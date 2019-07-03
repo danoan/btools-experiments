@@ -4,7 +4,7 @@ gp_save()
 {
 	printf "set size 1.0, 0.6;
 		set terminal postscript portrait enhanced mono dashed lw 1 \"Helvetica\" 20;
-		set key right center;
+		set key right top;
 		set output \"my-plot.ps\";
 		replot;
 		set terminal x11;
@@ -14,20 +14,20 @@ gp_save()
 gp_plot_config()
 {
     printf "set title '$1';
-    set yrange [-0.1:1.1]; 
+    set yrange [-0.1:0.2];
     set xlabel 'Iterations';
-    set ylabel 'Perc. Unlabeled';"
+    set ylabel 'Pairwise Ratio';"
 }
 
 
 gp_add_plot()
 {
-    printf "'$1' u 1:2 w l title '$2',"
+    printf "'$1' u 1:3 w l title '$2',"
 }
 
 gp_last_plot()
 {
-	printf "'$1' u 1:2 w l title '$2';"
+	printf "'$1' u 1:3 w l title '$2';"
 }
 
 create_multiplot()
@@ -65,7 +65,7 @@ create_multiplot()
 
 BASE_FOLDER=$(realpath $1)
 
-model_plot()
+pariwise_plot()
 {
 	shape=$1
 	mode=$2
@@ -73,46 +73,67 @@ model_plot()
     gs=$4
     radius=$5
 
-    PLOTS_OUTPUT=${BASE_FOLDER}/output/plots/pairwise-proportion/h$gs/radius-$radius
+    PLOTS_OUTPUT=${BASE_FOLDER}/output/plots/pairwise-ratio/h$gs/radius-$radius
     mkdir -p $PLOTS_OUTPUT
-	OUTPUT_PLOT=${PLOTS_OUTPUT}/plot-model-$shape-$mode-$method.eps
+
+	OUTPUT_PLOT=${PLOTS_OUTPUT}/plot-pairwiseratio-$shape-$mode-$method.eps
 	DATA_FOLDER=${BASE_FOLDER}/output/model/h$gs/radius-$radius/$shape/$method/$mode
 
 	i=1
-	PLOT_STRING="Unlabeled"
+	PLOT_STRING=""
 	while [ $i -le $radius ]
 	do
 	  PLOT_STRING=" ${PLOT_STRING} ${DATA_FOLDER}/level-$i.txt m=$i"
 	  i=$[$i+1]
     done
 
-	create_multiplot $OUTPUT_PLOT $PLOT_STRING
+	create_multiplot $OUTPUT_PLOT "Pairwise Ratio $shape(r=$radius)" $PLOT_STRING
 }
 
-plot_collection()
+pairwise_plot_collection()
 {
     shape=$1
     gs=$2
 
-    model_plot $shape concavities probe $gs 3
-    model_plot $shape convexities probe $gs 3
+    pariwise_plot $shape concavities probe $gs 3
 
-    model_plot $shape concavities probe $gs 5
-    model_plot $shape convexities probe $gs 5
+    pariwise_plot $shape concavities probe $gs 5
 
-    model_plot $shape concavities probe $gs 7
-    model_plot $shape convexities probe $gs 7
+    pariwise_plot $shape concavities probe $gs 7
 
-    model_plot $shape concavities probe $gs 9
-    model_plot $shape convexities probe $gs 9
+    pariwise_plot $shape concavities probe $gs 9
 }
 
-plot_collection square 1.0
-plot_collection flower 1.0
+lower_higher_level_plot()
+{
+	mode=$1
+	method=$2
+    gs=$3
+    radius=$4
 
-plot_collection square 0.5
-plot_collection flower 0.5
+    PLOTS_OUTPUT=${BASE_FOLDER}/output/plots/pairwise-ratio/h$gs/radius-$radius
+    mkdir -p $PLOTS_OUTPUT
 
-plot_collection square 0.25
-plot_collection flower 0.25
+	OUTPUT_PLOT=${PLOTS_OUTPUT}/plot-pairwiseratio-lowerHigher-$mode-$method.eps
 
+    PLOT_STRING=""
+	PLOT_STRING=" ${PLOT_STRING} ${BASE_FOLDER}/output/model/h$gs/radius-$radius/square/$method/$mode/level-1.txt square(m=1)"
+	PLOT_STRING=" ${PLOT_STRING} ${BASE_FOLDER}/output/model/h$gs/radius-$radius/square/$method/$mode/level-$radius.txt square(m=$radius)"
+
+	PLOT_STRING=" ${PLOT_STRING} ${BASE_FOLDER}/output/model/h$gs/radius-$radius/flower/$method/$mode/level-1.txt flower(m=1)"
+	PLOT_STRING=" ${PLOT_STRING} ${BASE_FOLDER}/output/model/h$gs/radius-$radius/flower/$method/$mode/level-$radius.txt flower(m=$radius)"
+
+	create_multiplot $OUTPUT_PLOT "Lower and Higher Rings (r=5)" $PLOT_STRING
+
+}
+
+#pairwise_plot_collection square 1.0
+#pairwise_plot_collection flower 1.0
+#
+#pairwise_plot_collection square 0.5
+#pairwise_plot_collection flower 0.5
+
+#pairwise_plot_collection square 0.25
+#pairwise_plot_collection flower 0.25
+
+lower_higher_level_plot concavities probe 0.5 5

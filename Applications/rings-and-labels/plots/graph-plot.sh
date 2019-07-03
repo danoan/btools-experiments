@@ -4,7 +4,7 @@ gp_save()
 {
 	printf "set size 1.0, 0.6;
 		set terminal postscript portrait enhanced mono dashed lw 1 \"Helvetica\" 20;
-		set key right center;
+		set key right top;
 		set output \"my-plot.ps\";
 		replot;
 		set terminal x11;
@@ -72,16 +72,34 @@ model_plot()
 	mode=$2
 	method=$3
 	gs=$4
+	radius=$5
 
-	PLOTS_OUTPUT=${BASE_FOLDER}/plots-out/unlabeled-per-iterations/h$gs
+	PLOTS_OUTPUT=${BASE_FOLDER}/output/plots/unlabeled-per-iterations/h$gs/radius-$radius
 	mkdir -p $PLOTS_OUTPUT
 
 	OUTPUT_PLOT=${PLOTS_OUTPUT}/plot-model-$shape-$mode-$method.eps
-	create_multiplot $OUTPUT_PLOT "$shape" "${BASE_FOLDER}/output/model/h$gs/$shape/$method/$mode/level-1.txt" "m=1" \
-	"${BASE_FOLDER}/output/model/h$gs/$shape/$method/$mode/level-2.txt" "m=2" \
-	"${BASE_FOLDER}/output/model/h$gs/$shape/$method/$mode/level-3.txt" "m=3" \
-	"${BASE_FOLDER}/output/model/h$gs/$shape/$method/$mode/level-4.txt" "m=4" \
-	"${BASE_FOLDER}/output/model/h$gs/$shape/$method/$mode/level-5.txt" "m=5"
+
+	i=1
+	PLOT_STRING="$OUTPUT_PLOT $shape(r=$radius)"
+	while [ $i -le $radius ]
+	do
+	    PLOT_STRING="${PLOT_STRING} ${BASE_FOLDER}/output/model/h$gs/radius-$radius/$shape/$method/$mode/level-$i.txt m=$i"
+	    i=$[$i+1]
+	done
+
+
+	create_multiplot ${PLOT_STRING}
+}
+
+collection_model_plot()
+{
+    shape=$1
+    gs=$2
+
+    model_plot $shape concavities probe $gs 3
+#    model_plot $shape concavities probe $gs 5
+#    model_plot $shape concavities probe $gs 7
+#    model_plot $shape concavities probe $gs 9
 }
 
 individual_plot()
@@ -90,23 +108,43 @@ individual_plot()
 	mode=$2
 	method=$3
 	gs=$4
+	radius=$5
 
-	PLOTS_OUTPUT=${BASE_FOLDER}/plots-out/unlabeled-per-iterations/h$gs
+	PLOTS_OUTPUT=${BASE_FOLDER}/output/plots/unlabeled-per-iterations/h$gs/radius-$radius
 	mkdir -p $PLOTS_OUTPUT
 
 	OUTPUT_PLOT=${PLOTS_OUTPUT}/plot-individual-$shape-$mode-$method.eps
-	create_multiplot $OUTPUT_PLOT "$shape" "${BASE_FOLDER}/output/individual/h$gs/$shape/$method/$mode/L1.txt" "m=1" \
-	"${BASE_FOLDER}/output/individual/h$gs/$shape/$method/$mode/L2.txt" "m=2" \
-	"${BASE_FOLDER}/output/individual/h$gs/$shape/$method/$mode/L3.txt" "m=3" \
-	"${BASE_FOLDER}/output/individual/h$gs/$shape/$method/$mode/L4.txt" "m=4" 
+
+
+	PLOT_STRING="$OUTPUT_PLOT $shape(r=$radius)"
+	i=0
+	while [ $i -le $radius ]
+	do
+	    PLOT_STRING="${PLOT_STRING} ${BASE_FOLDER}/output/individual/h$gs/radius-$radius/$shape/$method/$mode/L$i.txt m=$i"
+	    i=$[$i+1]
+	done
+
+
+	create_multiplot  ${PLOT_STRING}
 }
 
-model_plot square concavities probe 0.5
-model_plot square convexities probe 0.5
-model_plot flower concavities probe 0.5
-model_plot flower convexities probe 0.5
+collection_individual_plot()
+{
+    shape=$1
+    gs=$2
 
-#individual_plot square concavities probe 0.5
-#individual_plot square convexities probe 0.5
-#individual_plot flower concavities probe 0.25
-#individual_plot flower convexities probe 0.25
+    individual_plot $shape concavities probe $gs 3
+    individual_plot $shape concavities probe $gs 5
+    individual_plot $shape concavities probe $gs 7
+    individual_plot $shape concavities probe $gs 9
+}
+
+
+#collection_model_plot square 1.0
+#collection_model_plot flower 1.0
+
+#collection_model_plot square 0.5
+collection_model_plot flower 0.5
+
+#collection_model_plot square 0.25
+#collection_model_plot flower 0.25

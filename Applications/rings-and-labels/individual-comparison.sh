@@ -36,8 +36,8 @@ collection_individual()
     individual $shape concavities $gs 7
     individual $shape convexities $gs 7
 
-    individual $shape concavities $gs 9
-    individual $shape convexities $gs 9
+    #individual $shape concavities $gs 9
+    #individual $shape convexities $gs 9
 }
 
 collection_individual square 1.0
@@ -46,5 +46,5 @@ collection_individual flower 1.0
 collection_individual square 0.5
 collection_individual flower 0.5
 
-collection_individual square 0.25
-collection_individual flower 0.25
+#collection_individual square 0.25
+#collection_individual flower 0.25

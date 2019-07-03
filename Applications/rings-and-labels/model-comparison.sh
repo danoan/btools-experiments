@@ -13,7 +13,7 @@ model()
     gs=$4
     radius=$5
 
-    $APP ${BASE_FOLDER}/flows/h$gs/$shape/probe/L$radius ${BASE_FOLDER}/model/h$gs/radius-$radius/$shape/$method/$mode $method $mode
+    $APP ${BASE_FOLDER}/flows/h$gs/radius-$radius/$shape/probe/L$radius ${BASE_FOLDER}/model/h$gs/radius-$radius/$shape/$method/$mode $method $mode $radius
 }
 
 collection_model()
@@ -26,6 +26,8 @@ collection_model()
 
     model $shape probe concavities $gs 5&
     model $shape probe convexities $gs 5&
+
+    wait
 
     model $shape probe concavities $gs 7&
     model $shape probe convexities $gs 7&
