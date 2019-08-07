@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 project(jmiv-illustration)
 
 add_executable(jmiv-illustration jmiv-illustration.cpp)
+add_dependencies(jmiv-illustration dipacus scabolic btools exhaustive-gc geoc gcurve)
 
 target_include_directories(jmiv-illustration PRIVATE
         include
@@ -13,7 +14,6 @@ target_include_directories(jmiv-illustration PRIVATE
 target_link_libraries(jmiv-illustration
         -lbtools-core
         -lbtools-reader
-        -lbtools-visitors
         -lbtools-utils
         -lscabolic-optimization
         -lscabolic-energy

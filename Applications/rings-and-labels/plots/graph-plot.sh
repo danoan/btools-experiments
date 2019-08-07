@@ -3,7 +3,7 @@
 gp_save()
 {
 	printf "set size 1.0, 0.6;
-		set terminal postscript portrait enhanced mono dashed lw 1 \"Helvetica\" 20;
+		set terminal postscript portrait enhanced color dashed lw 2 \"Helvetica\" 20;
 		set key right top;
 		set output \"my-plot.ps\";
 		replot;
@@ -97,9 +97,9 @@ collection_model_plot()
     gs=$2
 
     model_plot $shape concavities probe $gs 3
-#    model_plot $shape concavities probe $gs 5
-#    model_plot $shape concavities probe $gs 7
-#    model_plot $shape concavities probe $gs 9
+    model_plot $shape concavities probe $gs 5
+    model_plot $shape concavities probe $gs 7
+    model_plot $shape concavities probe $gs 9
 }
 
 individual_plot()
@@ -140,10 +140,10 @@ collection_individual_plot()
 }
 
 
-#collection_model_plot square 1.0
-#collection_model_plot flower 1.0
+collection_model_plot square 1.0
+collection_model_plot flower 1.0
 
-#collection_model_plot square 0.5
+collection_model_plot square 0.5
 collection_model_plot flower 0.5
 
 #collection_model_plot square 0.25
