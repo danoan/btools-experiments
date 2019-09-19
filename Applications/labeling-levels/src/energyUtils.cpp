@@ -5,22 +5,22 @@ MockDistribution bgDistr;
 
 double sumPairwiseCoefficients(const EnergyTerm& et,unsigned int index)
 {
-    double s = et.od.localPTM.row(index).sum();
-    s += et.od.localPTM.col(index).sum();
+    double s = 0;
+    for(auto it=et.od.localTable.begin();it!=et.od.localTable.end();++it)
+    {
+        s+=it->second.e11;
+    }
 
     return s;
 }
 
 ODRPixels odrPixels(const InputData& input)
 {
-    return     ODRPixels ( ODRModel::ApplicationCenter::AC_PIXEL,
-                           ODRModel::CountingMode::CM_PIXEL,
-                           input.radius,
+    return     ODRPixels ( input.radius,
                            input.gridStep,
                            input.levels,
                            input.ld,
-                           ODRModel::NeighborhoodType::FourNeighborhood,
-                           ODRModel::StructuringElementType::RECT);
+                           ODRModel::NeighborhoodType::FourNeighborhood);
 }
 
 ODRModel odrModel(const InputData& input,
@@ -41,7 +41,6 @@ EnergyInput energyInput(const InputData& input, const ODRModel& ODR, const cv::M
                               fgDistr,
                               bgDistr,
                               input.excludeOptPointsFromAreaComputation,
-                              EnergyInput::PenalizationMode::No_Penalization,
                               input.repeatedImprovement,
                               0,
                               input.sqTermWeight,

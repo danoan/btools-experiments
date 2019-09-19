@@ -3,7 +3,7 @@
 
 #include <DGtal/helpers/StdDefs.h>
 
-#include "SCaBOliC/Core/ODRModel.h"
+#include "SCaBOliC/Core/model/ODRModel.h"
 #include "SCaBOliC/Optimization/solver/probe/QPBOProbeSolver.h"
 
 #include "SCaBOliC/Energy/ISQ/Terms/SquaredCurvature/SquaredCurvatureTerm.h"
@@ -25,7 +25,6 @@ typedef SCaBOliC::Energy::Solution::LabelsVector LabelsVector;
 typedef SCaBOliC::Energy::ISQ::SquaredCurvatureTerm SquaredCurvatureTerm;
 
 typedef QPBOProbeSolver<UnaryTermsMatrix,
-PairwiseTermsMatrix,
 EnergyTable,
 LabelsVector> MyQPBOProbeSolver;
 

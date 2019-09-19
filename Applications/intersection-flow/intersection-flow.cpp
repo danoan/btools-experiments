@@ -4,8 +4,8 @@
 
 #include <DGtal/helpers/StdDefs.h>
 
-#include "SCaBOliC/Core/ODRModel.h"
-#include "SCaBOliC/Core/ODRInterface.h"
+#include "SCaBOliC/Core/model/ODRModel.h"
+#include "SCaBOliC/Core/interface/ODRInterface.h"
 
 #include "BTools/core/pool/ODRPool.h"
 #include "BTools/core/model/input/ODRConfigInput.h"
@@ -61,8 +61,8 @@ DigitalSet flow(ODRPool::ODRInterface& odrFactory,
 
     DIPaCUS::Misc::DigitalBallIntersection DBIO = odrFactory.handle()->intersectionComputer(optRegion);
 
-    DigitalSet temp(shape.domain());
-    DigitalSet optIntersection(optRegion.domain());
+    DigitalSet temp(odr.domain);
+    DigitalSet optIntersection(odr.domain);
     for(auto it=appRegion.begin();it!=appRegion.end();++it)
     {
         DBIO(temp,*it);
@@ -96,21 +96,18 @@ int main(int argc, char* argv[])
 
 
 
-    ODRConfigInput odrConfigInput(ODRConfigInput::ApplicationCenter::AC_PIXEL,
-                                  ODRConfigInput::CountingMode::CM_PIXEL,
-                                  ODRConfigInput::SpaceMode::Pixel,
-                                  id.radius,
+    ODRConfigInput odrConfigInput(id.radius,
                                   id.gridStep,
                                   1,
                                   ODRConfigInput::LevelDefinition::LD_FartherFromCenter,
                                   ODRConfigInput::NeighborhoodType::FourNeighborhood,
-                                  ODRConfigInput::StructuringElementType::RECT,
                                   false);
 
 
     ODRPool::ODRInterface& odrFactory = BTools::Core::ODRPool::get(odrConfigInput);
     ODRModel::OptimizationMode optMode;
-    DigitalSet shape = resolveShape(id.shape,id.gridStep);
+    DigitalSet _shape = resolveShape(id.shape,id.gridStep);
+    DigitalSet shape = DIPaCUS::Transform::bottomLeftBoundingBoxAtOrigin(_shape,Point(20,20));
 
     boost::filesystem::create_directories(outputFolder);
 
@@ -119,7 +116,7 @@ int main(int argc, char* argv[])
     {
         if(id.fp==IFlowProfile::SingleStepConvexities) optMode = ODRModel::OptimizationMode::OM_CorrectConvexities;
         else if(it%2==0) optMode = ODRModel::OptimizationMode::OM_CorrectConvexities;
-//        else optMode = ODRModel::OptimizationMode::OM_CorrectConcavities;
+        else optMode = ODRModel::OptimizationMode::OM_CorrectConcavities;
 
         DigitalSet partialSolution = flow(odrFactory,shape,optMode);
 

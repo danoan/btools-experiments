@@ -1,10 +1,10 @@
 ExternalProject_Add(btools
         GIT_REPOSITORY https://github.com/danoan/BTools.git
-        GIT_TAG dev
+        GIT_TAG v0.1
         SOURCE_DIR ${EXTPROJECTS_SOURCE_DIR}/BTools
         CMAKE_ARGS
         -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
-        -DCMAKE_BUILD_TYPE=RELEASE
+        -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_INSTALL_PREFIX=${EXTPROJECTS_BUILD_DIR}
         -DUSE_REMOTE_REPOSITORIES=OFF
         -DDIPACUS_INCLUDE_DIRS=${EXTPROJECTS_BUILD_DIR}/include
@@ -16,4 +16,4 @@ ExternalProject_Add(btools
         -DGEOC_INCLUDE_DIRS=${EXTPROJECTS_BUILD_DIR}/include
         -DCREATE_SHARED_LIBRARIES=ON)
 
-add_dependencies(btools scabolic dipacus geoc)
+add_dependencies(btools scabolic dipacus geoc magLac exhaustive-gc)

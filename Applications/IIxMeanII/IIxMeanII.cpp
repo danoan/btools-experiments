@@ -134,6 +134,8 @@ double maxDiff(const std::vector<double>& compare,
         ii = compare[i];
         m = fabs(mdca-ii)>m?fabs(mdca-ii):m;
     }
+
+    return m;
 }
 
 void testConvergence(std::ofstream& ofs, double radius, double h)

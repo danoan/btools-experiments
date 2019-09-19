@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "SCaBOliC/Core/ODRModel.h"
+#include "SCaBOliC/Core/model/ODRModel.h"
 
 
 struct InputData

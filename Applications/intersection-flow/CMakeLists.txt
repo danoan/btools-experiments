@@ -13,6 +13,7 @@ target_link_libraries(intersection-flow
         -lbtools-reader
         -lbtools-utils
         -ldipacus-derivates
+        -ldipacus-components
         -ldipacus-base
         -lscabolic-energy
         -lscabolic-core

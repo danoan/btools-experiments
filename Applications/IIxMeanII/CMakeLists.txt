@@ -5,7 +5,7 @@ add_executable(iixmeanii IIxMeanII.cpp)
 
 target_include_directories(iixmeanii PRIVATE
         include
-        ${CMAKE_SOURCE_DIR}/ext/include
+        ${DIPACUS_INCLUDE_DIRS}
         ${DGTAL_INCLUDE_DIRS})
 
 target_link_libraries(iixmeanii

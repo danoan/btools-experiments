@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "SCaBOliC/Core/ODRModel.h"
+#include "SCaBOliC/Core/model/ODRModel.h"
 #include "SCaBOliC/Energy/ISQ/Terms/SquaredCurvature/SquaredCurvatureTerm.h"
 
 #include "energyUtils.h"

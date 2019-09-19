@@ -12,7 +12,6 @@ target_include_directories(morphology-flow PRIVATE
 target_link_libraries(morphology-flow
         -lbtools-core
         -lbtools-reader
-        -lbtools-visitors
         -lbtools-utils
         -lscabolic-optimization
         -lscabolic-energy

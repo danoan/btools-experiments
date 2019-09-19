@@ -37,7 +37,6 @@ DigitalSet probeSolve(std::ostream& os,
                              evPrior,
                              unlabeled,
                              sqt.od.localUTM,
-                             sqt.od.localPTM,
                              sqt.od.localTable,
                              labels,
                              10);

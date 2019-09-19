@@ -7,8 +7,8 @@
 
 #include "SCaBOliC/Energy/base/EnergyTerm.h"
 #include "SCaBOliC/Energy/ISQ/InputData.h"
-#include "SCaBOliC/Core/ODRModel.h"
-#include "SCaBOliC/Core/ODRPixels.h"
+#include "SCaBOliC/Core/model/ODRModel.h"
+#include "SCaBOliC/Core/ODRPixels/ODRPixels.h"
 
 #include "InputData.h"
 #include "MockDistribution.h"

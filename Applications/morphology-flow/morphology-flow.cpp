@@ -22,6 +22,8 @@ struct InputData
         elementType = ElementType::RECT;
         elementSize = 1;
         operation = Operation::DILATION;
+        shape = Shape( ShapeType::Square );
+        gridStep=1.0;
         iterations = 10;
 
         outputFolder="";
