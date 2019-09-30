@@ -1,7 +1,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
 project(iixmeanii)
 
-add_executable(iixmeanii IIxMeanII.cpp)
+add_executable(iixmeanii IIxMeanII.cpp ../epsilon-finder/epsilon-finder.cpp)
+
+if (${USE_REMOTE_REPOSITORIES})
+    add_dependencies(iixmeanii dipacus scabolic)
+endif ()
 
 target_include_directories(iixmeanii PRIVATE
         include
