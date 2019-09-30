@@ -3,6 +3,10 @@ project(intersection-flow)
 
 add_executable(intersection-flow intersection-flow.cpp)
 
+if (${USE_REMOTE_REPOSITORIES})
+    add_dependencies(intersection-flow dipacus scabolic btools)
+endif ()
+
 target_include_directories(intersection-flow PRIVATE
         include
         ${SCABOLIC_INCLUDE_DIRS}

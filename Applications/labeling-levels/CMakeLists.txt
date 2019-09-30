@@ -12,6 +12,10 @@ add_executable(labeling-levels
         src/energyUtils.cpp
         src/countUnlabeled.cpp)
 
+if (${USE_REMOTE_REPOSITORIES})
+    add_dependencies(labeling-levels dipacus scabolic)
+endif ()
+
 target_compile_definitions(labeling-levels PRIVATE PROJECT_DIR=\"${CMAKE_SOURCE_DIR}\")
 
 target_include_directories(labeling-levels PRIVATE

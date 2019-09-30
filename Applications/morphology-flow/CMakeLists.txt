@@ -3,6 +3,10 @@ project(morphology-flow)
 
 add_executable(morphology-flow morphology-flow.cpp)
 
+if (${USE_REMOTE_REPOSITORIES})
+    add_dependencies(morphology-flow dipacus scabolic btools)
+endif ()
+
 target_include_directories(morphology-flow PRIVATE
         include
         ${DIPACUS_INCLUDE_DIRS}
