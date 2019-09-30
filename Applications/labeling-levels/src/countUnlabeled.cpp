@@ -5,11 +5,6 @@ DigitalSet probeSolve(std::ostream& os,
                        const DigitalSet& dsInput,
                        bool correction)
 {
-    ODRModel::OptimizationMode optMode;
-    if(correction) optMode = ODRModel::OptimizationMode::OM_CorrectConvexities;
-    else optMode = ODRModel::OptimizationMode::OM_CorrectConcavities;
-
-
     typedef DGtal::Z2i::Point Point;
     typedef DGtal::Z2i::Domain Domain;
 
@@ -21,7 +16,7 @@ DigitalSet probeSolve(std::ostream& os,
 
 
     auto odrP = odrPixels(input);
-    auto ODR = odrModel(input,optMode,odrP,dsInput);
+    auto ODR = odrModel(input,odrP,dsInput);
     auto energyI = energyInput(input,ODR,cvImage);
     SquaredCurvatureTerm sqt(energyI,odrP.handle());
 
@@ -53,7 +48,6 @@ DigitalSet probeSolve(std::ostream& os,
     odrP.handle()->solutionSet(outDS,
                                initialDS,
                                energyI.optimizationRegions,
-                               optMode,
                                labels.data(),
                                sqt.vm.pim);
 
