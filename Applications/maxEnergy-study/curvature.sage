@@ -36,6 +36,10 @@ Ei=(pi*R^2-Ai)^2
 # Si on fait que Ee ou Ei il y a un terme en k, sinon terme en k^2 à l'ordre 4.
 Energy(k,E,R)=taylor(Ee+Ei,(E,0),(k,0),4)
 
+beta(E,R)=-2*sqrt(2)*pi*E^(3/2)*R^(9/2)
+alpha(k,E,R)=Energy(k,E,R)-beta(E,R)*k^2
+
+
 #-sqrt(2)*pi*E^(3/2)*R^(9/2)*k^2 + 2*pi^2*R^4 + 71/420*sqrt(2)*pi*E^(7/2)*sqrt(R) - 14/15*sqrt(2)*pi*E^(5/2)*R^(3/2) - 8/3*sqrt(2)*pi*E^(3/2)*R^(5/2) + 56/45*E^4 + 16/9*E^3*R
 #-2*sqrt(2)*pi*E^(3/2)*R^(9/2)*k^2 + 2*pi^2*R^4 + 71/210*sqrt(2)*pi*E^(7/2)*sqrt(R) - 28/15*sqrt(2)*pi*E^(5/2)*R^(3/2) - 16/3*sqrt(2)*pi*E^(3/2)*R^(5/2) + 224/45*E^4 + 64/9*E^3*R
 
