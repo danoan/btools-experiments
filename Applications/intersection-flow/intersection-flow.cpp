@@ -5,9 +5,8 @@
 #include <DGtal/helpers/StdDefs.h>
 
 #include "SCaBOliC/Core/model/ODRModel.h"
-#include "SCaBOliC/Core/interface/ODRInterface.h"
+#include "SCaBOliC/Core/ODRPixels/ODRPixels.h"
 
-#include "BTools/core/pool/ODRPool.h"
 #include "BTools/core/model/input/ODRConfigInput.h"
 
 #include "BTools/reader/DCFReader.h"
@@ -47,16 +46,18 @@ DigitalSet resolveShape(Shape shape,double gridStep)
 }
 
 
-DigitalSet flow(ODRPool::ODRInterface& odrFactory,
-                const DigitalSet& shape,
-                ODRModel::OptimizationMode optMode)
+DigitalSet flow(ODRPixels& odrFactory,
+                const DigitalSet& shape)
 {
-    ODRModel odr = odrFactory.createODR(optMode,
-                                        ODRModel::ApplicationMode::AM_InternRange,
+    ODRModel odr = odrFactory.createODR(ODRModel::ApplicationMode::AM_InternRange,
                                         shape,
                                         false);
 
-    const DigitalSet& appRegion = odr.applicationRegion;
+    const DigitalSet& appRegionIn = odr.applicationRegionIn;
+    const DigitalSet& appRegionOut = odr.applicationRegionOut;
+    DigitalSet appRegion = appRegionIn;
+    appRegion.insert(appRegionOut.begin(),appRegionOut.end());
+
     const DigitalSet& optRegion = odr.optRegion;
 
     DIPaCUS::Misc::DigitalBallIntersection DBIO = odrFactory.handle()->intersectionComputer(optRegion);
@@ -95,17 +96,12 @@ int main(int argc, char* argv[])
     }
 
 
+    ODRPixels odrPixels(id.radius,
+                        id.gridStep,
+                        1,
+                        ODRConfigInput::LevelDefinition::LD_FartherFromCenter,
+                        ODRConfigInput::NeighborhoodType::FourNeighborhood);
 
-    ODRConfigInput odrConfigInput(id.radius,
-                                  id.gridStep,
-                                  1,
-                                  ODRConfigInput::LevelDefinition::LD_FartherFromCenter,
-                                  ODRConfigInput::NeighborhoodType::FourNeighborhood,
-                                  false);
-
-
-    ODRPool::ODRInterface& odrFactory = BTools::Core::ODRPool::get(odrConfigInput);
-    ODRModel::OptimizationMode optMode;
     DigitalSet _shape = resolveShape(id.shape,id.gridStep);
     DigitalSet shape = DIPaCUS::Transform::bottomLeftBoundingBoxAtOrigin(_shape,Point(20,20));
 
@@ -114,14 +110,8 @@ int main(int argc, char* argv[])
     int it=0;
     while(it<id.iterations)
     {
-        if(id.fp==IFlowProfile::SingleStepConvexities) optMode = ODRModel::OptimizationMode::OM_CorrectConvexities;
-        else if(it%2==0) optMode = ODRModel::OptimizationMode::OM_CorrectConvexities;
-        else optMode = ODRModel::OptimizationMode::OM_CorrectConcavities;
-
-        DigitalSet partialSolution = flow(odrFactory,shape,optMode);
-
-        if(optMode==ODRModel::OptimizationMode::OM_CorrectConcavities) shape.assignFromComplement(partialSolution);
-        else shape = partialSolution;
+        DigitalSet partialSolution = flow(odrPixels,shape);
+        shape = partialSolution;
 
         BTools::Utils::exportImageFromDigitalSet(shape,outputFolder + "/" + BTools::Utils::nDigitsString(it,4) + ".pgm" );
         ++it;

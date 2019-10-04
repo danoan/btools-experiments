@@ -24,14 +24,12 @@ ODRPixels odrPixels(const InputData& input)
 }
 
 ODRModel odrModel(const InputData& input,
-                  const ODRModel::OptimizationMode& optMode,
                   const ODRPixels& odrPixels,
                   const DigitalSet& dsInput)
 {
-    return odrPixels.createODR(optMode,
-                                       ODRModel::ApplicationMode::AM_AroundBoundary,
-                                       dsInput,
-                                       input.optInApplication);
+    return odrPixels.createODR(ODRModel::ApplicationMode::AM_AroundBoundary,
+                               dsInput,
+                               input.optInApplication);
 }
 
 EnergyInput energyInput(const InputData& input, const ODRModel& ODR, const cv::Mat& cvImage)

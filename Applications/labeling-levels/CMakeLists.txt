@@ -4,7 +4,6 @@ project(labeling-levels)
 find_package(DGtal REQUIRED)
 find_package(OpenCV REQUIRED)
 
-
 add_executable(labeling-levels
         labeling-levels.cpp
         src/InputReader.cpp
@@ -15,8 +14,6 @@ add_executable(labeling-levels
 if (${USE_REMOTE_REPOSITORIES})
     add_dependencies(labeling-levels dipacus scabolic)
 endif ()
-
-target_compile_definitions(labeling-levels PRIVATE PROJECT_DIR=\"${CMAKE_SOURCE_DIR}\")
 
 target_include_directories(labeling-levels PRIVATE
         include
