@@ -32,6 +32,10 @@ namespace RootFinder
     double find_e(const TaylorEnergy& TE,
                   double maxEnergy,
                   const GroundTruth& GT);
+
+    double find_e(const TaylorEnergy& TE,
+                  double maxEnergy,
+                  double k2);
 }
 
 #endif //EXPERIMENTS_ROOTFINDER_H

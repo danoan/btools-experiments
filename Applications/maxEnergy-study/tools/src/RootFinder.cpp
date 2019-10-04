@@ -1,4 +1,4 @@
-#include "RootFinder.h"
+#include "tools/RootFinder.h"
 
 namespace RootFinder
 {
@@ -18,5 +18,13 @@ namespace RootFinder
     {
         auto NRInput = NREnergy(TE,maxEnergy,GT.perimeter,GT.isc);
         return boost::math::tools::newton_raphson_iterate(NRInput,1e-10,1e-10,1.0,4);
+    }
+
+    double find_e(const TaylorEnergy& TE,
+                  double maxEnergy,
+                  double k2)
+    {
+        auto NRInput = NREnergy(TE,maxEnergy,1.0,k2);
+        return boost::math::tools::newton_raphson_iterate(NRInput,1.0,1e-10,1.5,4);
     }
 }

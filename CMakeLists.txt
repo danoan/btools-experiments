@@ -33,7 +33,9 @@ endif()
 link_directories(${DIPACUS_LIBS_DIR}
         ${GEOC_LIBS_DIR}
         ${SCABOLIC_LIBS_DIR}
-        ${BOOST_LIBS_DIR})
+        ${BOOST_LIBS_DIR}
+        ${CMAKE_BINARY_DIR}/Applications/maxEnergy-study/tools
+        ${CMAKE_BINARY_DIR}/Applications/maxEnergy-study/plot)
 
 add_subdirectory(Applications/IIxMeanII)
 add_subdirectory(Applications/intersection-flow)

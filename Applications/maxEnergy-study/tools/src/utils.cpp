@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "tools/utils.h"
 
 namespace  Utils
 {
@@ -35,13 +35,13 @@ namespace  Utils
         double outerBallCoeff = L/Lout;
         double innerBallCoeff = L/Lin;
 
-        double modelRadius = (TE.R+epsilon);
+        double modelRadiusEpsilon = (TE.R+epsilon);
 
         int levels=(int) TE.R;
 
         std::cout << "outerBallCoeff: " << outerBallCoeff << "    "
                   << "innerBallCoeff: " << innerBallCoeff << "    "
-                  << "modelRadius: " << modelRadius << "    "
+                  << "modelRadiusEpsilon: " << modelRadiusEpsilon << "    "
                   << "levels: " << levels << "    " << std::endl;
 
         ODRPixels::LevelDefinition ld = ODRPixels::LevelDefinition::LD_CloserFromCenter;
@@ -55,7 +55,7 @@ namespace  Utils
         Point ub = shape.domain().upperBound();
         Point size = ub-lb+Point(1,1);
 
-        ODRPixels odrPixels(modelRadius,gridStep,levels,ld,nt);
+        ODRPixels odrPixels(modelRadiusEpsilon,gridStep,levels,ld,nt);
         ODRModel odr = odrPixels.createODR(am,shape);
 
         ISQ::InputData::cvColorImage img(size[1],size[0],CV_8UC3);

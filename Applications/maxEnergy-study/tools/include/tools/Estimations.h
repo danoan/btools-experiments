@@ -11,15 +11,24 @@ namespace Estimations
     using namespace DGtal::Z2i;
     using namespace SCaBOliC::Core;
 
-    double estimatePerimeter(const DigitalSet& ds,double gridStep);
-    double estimateIsc(const DigitalSet& ds,double gridStep);
+    namespace Global
+    {
+        double estimatePerimeter(const DigitalSet& ds,double gridStep);
+        double estimateIsc(const DigitalSet& ds,double gridStep);
+    }
+
+    namespace Local
+    {
+        double curvature(const DigitalSet& ds, double gridStep, Point point);
+    }
+
 
     struct Properties
     {
         Properties(const ODRModel& odr,double gridStep)
         {
-            perimeter = estimatePerimeter(odr.original,gridStep);
-            isc = estimateIsc(odr.original,gridStep);
+            perimeter = Global::estimatePerimeter(odr.original,gridStep);
+            isc = Global::estimateIsc(odr.original,gridStep);
         }
 
         double perimeter;

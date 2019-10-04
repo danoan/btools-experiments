@@ -1,0 +1,3 @@
+add_subdirectory(evaluation)
+add_subdirectory(plotGSEqualEpsilon)
+add_subdirectory(plotFixedGS)

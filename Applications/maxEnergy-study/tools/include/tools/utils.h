@@ -6,6 +6,7 @@
 #include <SCaBOliC/Core/ODRPixels/ODRPixels.h>
 #include <SCaBOliC/Energy/ISQ/ISQEnergy.h>
 
+
 #include "TaylorEnergy.h"
 #include "Constants.h"
 #include "MockDistribution.h"

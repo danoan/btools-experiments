@@ -1,10 +1,10 @@
 #include <boost/filesystem.hpp>
 
-#include "Constants.h"
-#include "Estimations.h"
-#include "TaylorEnergy.h"
-#include "RootFinder.h"
-#include "utils.h"
+#include "tools/Constants.h"
+#include "tools/Estimations.h"
+#include "tools/TaylorEnergy.h"
+#include "tools/RootFinder.h"
+#include "tools/utils.h"
 
 using namespace Constants;
 using namespace Estimations;
@@ -17,19 +17,10 @@ double thetaMetric(const GroundTruth& GT, const TaylorEnergy& TE,double epsilon,
 
 int main(int argc, char* argv[])
 {
-    if(argc<3)
-    {
-        std::cerr << "USAGE: OutputFolder gridStep" << std::endl;
-        exit(1);
-    }
-
-    std::string outputFolder = argv[1];
-    double gridStep = std::atof(argv[2]);
-    double shapeRadius=std::atof(argv[3]);
-    double modelRadius=std::atof(argv[4]);
-    double epsilon = std::atof(argv[5]);
-
-    boost::filesystem::create_directories(outputFolder);
+    double gridStep = std::atof(argv[1]);
+    double shapeRadius=std::atof(argv[2]);
+    double modelRadius=std::atof(argv[3]);
+    double epsilon = std::atof(argv[4]);
 
     TaylorEnergy TE(modelRadius);
     auto modelPair = Utils::prepareEnergy(TE,gridStep,shapeRadius,epsilon);
