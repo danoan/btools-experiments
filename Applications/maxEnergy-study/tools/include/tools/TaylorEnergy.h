@@ -3,60 +3,54 @@
 
 #include "Constants.h"
 
-//-sqrt(2)*pi*E^(3/2)*R^(9/2)*k^2 + 2*pi^2*R^4 + 71/420*sqrt(2)*pi*E^(7/2)*sqrt(R) - 14/15*sqrt(2)*pi*E^(5/2)*R^(3/2) - 8/3*sqrt(2)*pi*E^(3/2)*R^(5/2) + 56/45*E^4 + 16/9*E^3*R
-//-2*sqrt(2)*pi*E^(3/2)*R^(9/2)*k^2 + 2*pi^2*R^4 + 71/210*sqrt(2)*pi*E^(7/2)*sqrt(R) - 28/15*sqrt(2)*pi*E^(5/2)*R^(3/2) - 16/3*sqrt(2)*pi*E^(3/2)*R^(5/2) + 224/45*E^4 + 64/9*E^3*R
 class TaylorEnergy
 {
 public:
-    TaylorEnergy(double radius)
+    typedef long double NumType;
+
+    TaylorEnergy(NumType radius)
     {
         using namespace Constants;
 
         R=radius;
 
         A=2.0*pow(PI,2)*pow(R,4);
-        B=71.0/420*S2*PI*pow(R,0.5);
-        C=-14.0/15*S2*PI*pow(R,1.5);
-        D=-8.0/3*S2*PI*pow(R,2.5);
-        F= 56.0/45;
-        G=16.0/9*R;
+        B=8.0*pow(PI,2)*pow(R,3);
+        C=-16.0/3.0*S2*PI*pow(R,2.5);
+        D=12.0*pow(PI,2)*pow(R,2);
+        F=-188.0/15.0*S2*PI*pow(R,1.5);
+        G=8.0/9.0*(9.0*pow(PI,2)+8)*R;
+        H=-611.0/70.0*S2*PI*pow(R,0.5);
+        I=2.0/45.0*(45*pow(PI,2)+112);
 
-        H=-S2*PI*pow(R,4.5);
+        J=-2*S2*PI*pow(R,4.5);
 
-//        A=2.0*pow(PI,2)*pow(R,4);
-//        B=71.0/210*S2*PI*pow(R,0.5);
-//        C=-28.0/15*S2*PI*pow(R,1.5);
-//        D=-16.0/3*S2*PI*pow(R,2.5);
-//        F= 224.0/45;
-//        G=64.0/9*R;
-//
-//        H=-2.0*S2*PI*pow(R,4.5);
     }
 
-    double alpha(double e) const
+    NumType alpha(NumType e) const
     {
-        return A + B*pow(e,3.5) + C*pow(e,2.5) + D*pow(e,1.5) + F*pow(e,4) + G*pow(e,3);
+        return A + B*e + C*pow(e,1.5) + D*pow(e,2) + F*pow(e,2.5) + G*pow(e,3) + H*pow(e,3.5) + I*pow(e,4);
     }
 
-    double alpha_prime(double e)  const
+    NumType alpha_prime(NumType e)  const
     {
-        return 3.5*B*pow(e,2.5) + 2.5*C*pow(e,1.5) + 1.5*D*pow(e,0.5) + 4*F*pow(e,3) + 3*G*pow(e,2);
+        return B + 1.5*C*pow(e,0.5) + D*e + 2.5*F*pow(e,1.5) + 3*G*pow(e,2) + 3.5*H*pow(e,2.5) + 4*I*pow(e,3);
     }
 
-    double beta(double e)  const
+    NumType beta(NumType e)  const
     {
-        return H*pow(e,1.5);
+        return J*pow(e,1.5);
     }
 
-    double beta_prime(double e)  const
+    NumType beta_prime(NumType e)  const
     {
-        return 1.5*H*pow(e,0.5);
+        return 1.5*J*pow(e,0.5);
     }
 
 
 public:
-    double R;
-    double A,B,C,D,F,G,H;
+    NumType R;
+    NumType A,B,C,D,F,G,H,I,J;
 };
 
 #endif //EXPERIMENTS_TAYLORENERGY_H

@@ -7,10 +7,6 @@ if (${USE_REMOTE_REPOSITORIES})
     add_dependencies(iixmeanii dipacus scabolic)
 endif ()
 
-if (${USE_REMOTE_REPOSITORIES})
-    add_dependencies(iixmeanii dipacus scabolic)
-endif ()
-
 target_include_directories(iixmeanii PRIVATE
         include
         ${DIPACUS_INCLUDE_DIRS}

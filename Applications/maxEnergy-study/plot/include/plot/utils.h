@@ -10,12 +10,16 @@
 #include <DIPaCUS/components/Transform.h>
 #include <DIPaCUS/components/SetOperations.h>
 
+#include <SCaBOliC/Core/model/ODRModel.h>
+
 #include <plot/Data.h>
 
 namespace Plot
 {
     using namespace DGtal::Z2i;
-    void createModelFigure(const Data& data, Point pIn, Point pOut, Point IIPoint);
+    using namespace SCaBOliC::Core;
+
+    void createModelFigure(const Data& data,const ODRModel& odr, Point pIn, Point pOut, Point IIPoint);
 }
 
 #endif //EXPERIMENTS_MAX_ENERGY_STUDY_PLOT_UTILS_H

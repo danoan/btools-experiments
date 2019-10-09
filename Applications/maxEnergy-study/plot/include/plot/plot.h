@@ -18,28 +18,20 @@ namespace Plot
     using namespace DGtal::Z2i;
     using namespace SCaBOliC::Core;
 
+    typedef DGtal::Z2i::Space Space;
+    typedef DGtal::Ball2D<Space> Ball2D;
+
     Data computeData(const DataInput& IN);
 
     double linspace(double start, double end, int steps, int curr);
 
-    template<class TIterator>
-    Point findHighestPoint(TIterator begin, TIterator end);
-    Point findEstimationPointOnCurve(const DigitalSet& ds, const Point& pIn, const Point& pOut, double modelRadiusEpsilon, double gridStep);
 
-    double intersectionSize(DIPaCUS::Misc::DigitalBallIntersection& DBI,
-                            const Point& point);
+    double implicitBallIntersectionSize(const Ball2D& B1,const Ball2D& B2,const double gridStep);
 
-    std::pair<Point,double> iiCurvatureEstimation(const ODRModel& odr,
-                                                  double modelRadius,
-                                                  double gridStep,
-                                                  Point pIn,
-                                                  Point pOut);
 
     void print(std::ostream& os,const Data& data);
     void exportGNU(std::ostream& os,const Data& data);
     void exportGNU(std::ostream& os,const std::vector<Data>& data);
 }
-
-#include "plot.hpp"
 
 #endif//EXPERIMENTS_MAX_ENERGY_STUDY_PLOT_H

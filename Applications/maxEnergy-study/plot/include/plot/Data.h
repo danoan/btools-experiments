@@ -9,7 +9,7 @@ namespace Plot
 {
     struct Data
     {
-        Data(const DataInput& dataInput, const SCaBOliC::Core::ODRModel& odr):dataInput(dataInput),odr(odr){}
+        Data(const DataInput& dataInput):dataInput(dataInput){}
 
         const DataInput dataInput;
 
@@ -22,13 +22,8 @@ namespace Plot
         double TEV;
         double alpha;
         double beta;
-        double IIK2;
         double MyK2;
         double RealK2;
-        double epsilonGrid;
-        double adjustedMyK2;
-
-        const SCaBOliC::Core::ODRModel odr;
     };
 }
 

@@ -2,16 +2,16 @@
 
 namespace Plot
 {
-    void createModelFigure(const std::string& outputFilePath, const Plot::Data& data, Point pIn, Point pOut, Point IIPoint)
+    void createModelFigure(const std::string& outputFilePath, const Plot::Data& data, const ODRModel& odr, Point pIn, Point pOut, Point IIPoint)
     {
         const Plot::DataInput& IN = data.dataInput;
 
         DGtal::Board2D board;
-        std::string specificStyle = data.odr.original.className() + "/Paving";
-        board << DGtal::SetMode(data.odr.original.className(),"Paving");
+        std::string specificStyle = odr.original.className() + "/Paving";
+        board << DGtal::SetMode(odr.original.className(),"Paving");
 
         board << DGtal::CustomStyle(specificStyle, new DGtal::CustomColors(DGtal::Color::Blue, DGtal::Color::Blue));
-        board << data.odr.original;
+        board << odr.original;
 
         {
             DigitalSet _temp = DIPaCUS::Shapes::ball(IN.gridStep,0,0,IN.shapeRadius);
@@ -27,13 +27,13 @@ namespace Plot
 
 
             DigitalSet tempIntersect(temp.domain());
-            DIPaCUS::SetOperations::setIntersection(tempIntersect,temp,data.odr.original);
+            DIPaCUS::SetOperations::setIntersection(tempIntersect,temp,odr.original);
             board << DGtal::CustomStyle(specificStyle, new DGtal::CustomColors(DGtal::Color::Black, DGtal::Color::Gray));
             board << tempIntersect;
         }
 
         board << DGtal::CustomStyle(specificStyle, new DGtal::CustomColors(DGtal::Color::Yellow, DGtal::Color::Yellow));
-        board << data.odr.applicationRegionIn << data.odr.applicationRegionOut;
+        board << odr.applicationRegionIn << odr.applicationRegionOut;
 
         board << DGtal::CustomStyle(pIn.className(), new DGtal::CustomColors(DGtal::Color::Red, DGtal::Color::Red));
         board << pIn << pOut << IIPoint;

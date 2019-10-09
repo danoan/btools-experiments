@@ -6,28 +6,22 @@ namespace Plot
     {
         double levels=IN.modelRadius;
 
-        DigitalSet _shape = DIPaCUS::Shapes::ball(IN.gridStep,0,0,IN.shapeRadius);
-        DigitalSet shape = DIPaCUS::Transform::bottomLeftBoundingBoxAtOrigin(_shape,Point(20,20));
+        Point pIn(0,IN.shapeRadius-IN.modelRadius);
+        Point pOut(0,IN.shapeRadius+IN.modelRadius);
 
-        ODRPixels odrPixels(IN.modelRadiusEpsilon(),
-                            IN.gridStep,
-                            levels,
-                            ODRPixels::LevelDefinition::LD_CloserFromCenter,
-                            ODRPixels::NeighborhoodType::FourNeighborhood);
+        Ball2D shapeBall(0,0,IN.shapeRadius);
+        Ball2D modelBallIn(pIn[0],pIn[1],IN.modelRadiusEpsilon());
+        Ball2D modelBallOut(pOut[0],pOut[1],IN.modelRadiusEpsilon());
 
-        ODRModel odr = odrPixels.createODR(ODRPixels::ApplicationMode::AM_AroundBoundary,shape);
+        Data data(IN);
 
-        Data data(IN,odr);
+        double gridAdjustement = IN.gridStep*IN.gridStep;
 
-        Point pIn = findHighestPoint(odr.applicationRegionIn.begin(),odr.applicationRegionIn.end());
-        Point pOut = findHighestPoint(odr.applicationRegionOut.begin(),odr.applicationRegionOut.end());
 
-        DigitalSet modelBall = DIPaCUS::Shapes::ball(IN.gridStep,0,0,IN.modelRadiusEpsilon());
-
-        DIPaCUS::Misc::DigitalBallIntersection DBITrust(IN.modelRadiusEpsilon()/IN.gridStep,odr.original);
-        data.inIntersection = intersectionSize(DBITrust,pIn)*IN.gridStep*IN.gridStep;
-        data.outIntersection = intersectionSize(DBITrust,pOut)*IN.gridStep*IN.gridStep;
-        data.modelBallArea = modelBall.size()*IN.gridStep*IN.gridStep;
+        data.inIntersection = implicitBallIntersectionSize(shapeBall,modelBallIn,IN.gridStep)*gridAdjustement;
+        data.outIntersection = implicitBallIntersectionSize(shapeBall,modelBallOut,IN.gridStep)*gridAdjustement;
+//        data.modelBallArea = Constants::PI*pow(IN.modelRadiusEpsilon(),2);
+        data.modelBallArea = DIPaCUS::Shapes::digitizeShape(modelBallIn,IN.gridStep).size()*gridAdjustement;
 
         data.inCoefficient = pow(data.inIntersection,2);
         data.outCoefficient = pow(data.modelBallArea-data.outIntersection,2);
@@ -43,50 +37,9 @@ namespace Plot
         data.TEV = data.alpha + data.beta*GT.k2;
         data.MyK2 = (data.maxEnergy - data.alpha)/data.beta;
 
-        data.epsilonGrid = RootFinder::find_e(TE,data.maxEnergy,GT.k2);
-        data.adjustedMyK2 = (data.maxEnergy - TE.alpha(data.epsilonGrid))/TE.beta(data.epsilonGrid);
-
-        double valueForRoot = RootFinder::f(TE,data.maxEnergy,1,GT.k2,data.epsilonGrid);
-        if(fabs(valueForRoot)>1e-5)
-        {
-            std::cout << "Epsilon grid function has no zero for this configuration! (" << valueForRoot << ")\n\n";
-        }
-
-        Point IIPoint = findEstimationPointOnCurve(odr.original,pIn,pOut,IN.modelRadiusEpsilon(),IN.gridStep);
-
-        data.IIK2 = pow(Estimations::Local::curvature(odr.original,IN.gridStep,IIPoint),2);
         data.RealK2 = GT.k2;
 
         return data;
-    }
-
-    Point findEstimationPointOnCurve(const DigitalSet& ds, const Point& pIn, const Point& pOut, double modelRadiusEpsilon, double gridStep)
-    {
-        KSpace KImage;
-        KImage.init(ds.domain().lowerBound(),ds.domain().upperBound(),true);
-        Curve curve;
-        DIPaCUS::Misc::computeBoundaryCurve(curve,ds);
-
-        Point IIPoint;
-        auto it = curve.begin();
-        int pIndex=0;
-        bool found=false;
-        do{
-            SCell incPixel = KImage.sDirectIncident(*it,KImage.sOrthDir(*it));
-            Point p1 = KImage.sCoords(incPixel);
-
-            if(p1[0]==pIn[0] && p1[1]>=(pOut[1]-(modelRadiusEpsilon/gridStep)))
-            {
-                found=true;
-                IIPoint = p1;
-                break;
-            }
-            ++it;
-            ++pIndex;
-        }while(it!=curve.end());
-
-        if(!found) throw std::runtime_error("Estimation point not found!");
-        return IIPoint;
     }
 
     double linspace(double start, double end, int steps, int curr)
@@ -97,26 +50,27 @@ namespace Plot
     void exportGNU(std::ostream& os,const Data& data)
     {
         os << "#Epsilon\t\tMaxEnergy\t\tTEV\t\tMyK2\n";
-        os << data.dataInput.epsilon << "\t\t" << data.maxEnergy << "\t\t" << data.TEV << "\t\t" << data.MyK2 << "\t\t" << data.epsilonGrid << "\n";
+        os << data.dataInput.epsilon << "\t\t" << data.maxEnergy << "\t\t" << data.TEV << "\t\t" << data.MyK2 << "\n";
     }
 
     void exportGNU(std::ostream& os,const std::vector<Data>& dataVector)
     {
         int i=0;
-        os << "#Epsilon\t\tMaxEnergy\t\tTEV\t\tMyK2\n";
+        os << "#Epsilon\t\tMaxEnergy\t\tTEV\t\tMyK2\t\tGridStep\n";
         for(auto d: dataVector)
         {
-            os << d.dataInput.epsilon << "\t\t" << d.maxEnergy << "\t\t" << d.TEV << "\t\t" << d.MyK2 << "\t\t" << d.epsilonGrid << "\n";
+            os << d.dataInput.epsilon << "\t\t" << d.maxEnergy << "\t\t" << d.TEV << "\t\t" << d.MyK2 << "\t\t" << d.dataInput.gridStep << "\n";
             ++i;
         }
     }
 
-    double intersectionSize(DIPaCUS::Misc::DigitalBallIntersection& DBI, const Point& point)
+    double implicitBallIntersectionSize(const Ball2D& B1,const Ball2D& B2,const double gridStep)
     {
+        DGtal::EuclideanShapesCSG<DGtal::Ball2D<Space>,DGtal::Ball2D<Space>> CSG;
+        CSG.setParams(B1);
+        CSG.intersection(B2);
 
-        DigitalSet intersection(DBI.domain());
-        DBI(intersection,point);
-        return intersection.size();
+        return DIPaCUS::Shapes::digitizeShape(CSG,gridStep).size();
     }
 
 
@@ -132,11 +86,8 @@ namespace Plot
         os << "First order term: " << 2*pow( Constants::PI*pow(data.dataInput.modelRadiusEpsilon(),2),2)  << std::endl;
         os << "alpha(e): " << data.alpha << std::endl;
         os << "beta(e): " << data.beta << std::endl;
-        os << "IIK2: " << data.IIK2 << std::endl;
         os << "My K2: " << data.MyK2 << std::endl;
         os << "Real K2: " << data.RealK2 << std::endl;
-        os << "Epsilon Grid: " << data.epsilonGrid << std::endl;
-        os << "AdjustedMyK2: " << data.adjustedMyK2 << std::endl;
     }
 
 }
