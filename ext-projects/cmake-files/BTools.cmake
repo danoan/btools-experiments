@@ -14,6 +14,8 @@ ExternalProject_Add(btools
         -DBOOST_INCLUDE_DIRS=${BOOST_INCLUDE_DIRS}
         -DBOOST_LIBS_DIR=${BOOST_LIBS_DIR}
         -DGEOC_INCLUDE_DIRS=${EXTPROJECTS_BUILD_DIR}/include
-        -DCREATE_SHARED_LIBRARIES=ON)
+        -DCREATE_SHARED_LIBRARIES=ON
+        -DBUILD_APPLICATIONS=OFF
+        -DBUILD_FIGURES=OFF)
 
 add_dependencies(btools scabolic dipacus geoc magLac exhaustive-gc)

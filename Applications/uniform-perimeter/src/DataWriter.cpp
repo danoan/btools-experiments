@@ -1,14 +1,26 @@
 #include "DataWriter.h"
 
-void DataWriter::outputElasticaEnergy(const DigitalSet& ds, std::ostream& os)
+void DataWriter::outputElasticaII(const DigitalSet& ds,const double h, const double radius, std::ostream& os)
 {
     int colLength=20;
     std::string(*fnD)(int,double) = BTools::Utils::fixedStrLength;
 
-    double IIValue,MDCAValue;
+    double IIValue;
 
-    SCaBOliC::Utils::ISQEvaluation(MDCAValue,ds,
-                                   SCaBOliC::Utils::ISQEvaluation::MDCA);
+    SCaBOliC::Utils::ISQEvaluation::IICurvatureExtraData data(true,radius);
+    IIValue=SCaBOliC::Utils::ISQEvaluation::ii(ds,h,&data);
+
+    os << fnD(colLength,IIValue) << "\t";
+}
+
+void DataWriter::outputElasticaMDCA(const DigitalSet& ds,const double h, std::ostream& os)
+{
+    int colLength=20;
+    std::string(*fnD)(int,double) = BTools::Utils::fixedStrLength;
+
+    double MDCAValue;
+
+    MDCAValue=SCaBOliC::Utils::ISQEvaluation::mdca(ds,h);
 
     os << fnD(colLength,MDCAValue) << "\t";
 }
@@ -24,7 +36,7 @@ double DataWriter::outputShapeArea(const DigitalSet& ds, double gridStep, std::o
     return a;
 }
 
-double DataWriter::outputShapePerimeter(const DigitalSet& ds, const double gridStep, std::ostream& os)
+double DataWriter::outputShapePerimeter(const DigitalSet& ds, const double h, std::ostream& os)
 {
     int colLength=20;
     std::string(*fnD)(int,double) = BTools::Utils::fixedStrLength;
@@ -51,7 +63,7 @@ double DataWriter::outputShapePerimeter(const DigitalSet& ds, const double gridS
 
 
     DGtal::MLPLengthEstimator<MyConstRangeAdapter::ConstIterator> mlpLengthEstimator;
-    mlpLengthEstimator.init(gridStep,curvePointAdapter.begin(),curvePointAdapter.end(),true);
+    mlpLengthEstimator.init(h,curvePointAdapter.begin(),curvePointAdapter.end(),true);
 
     perimeter = mlpLengthEstimator.eval();
     os << fnD(colLength,perimeter) << "\t";
@@ -73,6 +85,7 @@ void DataWriter::printTable(const std::string& inputName,const std::vector<Table
         << fnS(colLength,"Unlabeled") << "\t"
         << fnS(colLength,"Area") << "\t"
         << fnS(colLength,"Perimeter^2/Area") << "\t"
+        << fnS(colLength,"Elastica II") << "\t"
         << std::endl;
 
     for(auto it=entries.begin();it!=entries.end();++it)
@@ -82,20 +95,22 @@ void DataWriter::printTable(const std::string& inputName,const std::vector<Table
         const EnergySolution &curr = (it->solution);
         os << fnS(colLength,it->name) << "\t"
            << fnD(colLength,curr.energyValue) << "\t";
-        outputElasticaEnergy(it->solution.outputDS,os);
+        outputElasticaMDCA(it->solution.outputDS,it->gridStep,os);
 
         double perimeter = outputShapePerimeter(it->solution.outputDS,it->gridStep,os);
 
         os << fnD(colLength,curr.unlabeled) << "\t";
         double area = outputShapeArea(it->solution.outputDS,it->gridStep,os);
-        os << fnD(colLength,perimeter*perimeter/area) << "\t\n";
+        os << fnD(colLength,pow(perimeter,2)/area) << "\t";
+        outputElasticaII(it->solution.outputDS,it->gridStep,it->radius,os);
+        os << "\t\n";
     }
 }
 
 void DataWriter::printFlowMetadata(const BCConfigInput& bcInput,
                                    const ODRConfigInput& odrConfigInput,
-                                    const DigitalSet& dsZero,
-                                    std::ofstream &ofs)
+                                   const DigitalSet& dsZero,
+                                   std::ofstream &ofs)
 {
     ofs << "Levels: " << odrConfigInput.levels << "("
         << ( (odrConfigInput.levelDefinition==ODRConfigInput::LevelDefinition::LD_CloserFromCenter)?"CloserFromCenter":"FartherFromCenter")

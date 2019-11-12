@@ -91,7 +91,7 @@ FlowControl::BCConfigInput FlowControl::uniformPerimeter(const DigitalSet& ds, c
         kspace.init(ODR.domain.lowerBound(),ODR.domain.upperBound(),true);
         Curve curve;
         DIPaCUS::Misc::computeBoundaryCurve(curve,fullIn);
-        mdssClosed<EstimationAlgorithms::ALG_PROJECTED>(kspace,curve.begin(),curve.end(),evLengthIn,oci.gridStep);
+        mdssClosed<EstimationAlgorithms::ALG_PROJECTED>(kspace,curve.begin(),curve.end(),evLengthIn,oci.gridStep,NULL);
     }
 
     std::cout << "Passed Perimeter In" << std::endl;
@@ -102,7 +102,7 @@ FlowControl::BCConfigInput FlowControl::uniformPerimeter(const DigitalSet& ds, c
         kspace.init(ODR.domain.lowerBound(),ODR.domain.upperBound(),true);
         Curve curve;
         DIPaCUS::Misc::computeBoundaryCurve(curve,fullOut);
-        mdssClosed<EstimationAlgorithms::ALG_PROJECTED>(kspace,curve.begin(),curve.end(),evLengthOut,oci.gridStep);
+        mdssClosed<EstimationAlgorithms::ALG_PROJECTED>(kspace,curve.begin(),curve.end(),evLengthOut,oci.gridStep,NULL);
     }
 
     std::cout << "Passed Perimeter Out" << std::endl;
@@ -114,7 +114,7 @@ FlowControl::BCConfigInput FlowControl::uniformPerimeter(const DigitalSet& ds, c
         kspace.init(ODR.domain.lowerBound(),ODR.domain.upperBound(),true);
         Curve curve;
         DIPaCUS::Misc::computeBoundaryCurve(curve,ds);
-        mdssClosed<EstimationAlgorithms::ALG_PROJECTED>(kspace,curve.begin(),curve.end(),evLengthContour,oci.gridStep);
+        mdssClosed<EstimationAlgorithms::ALG_PROJECTED>(kspace,curve.begin(),curve.end(),evLengthContour,oci.gridStep,NULL);
     }
 
     double lengthIn=0;
@@ -140,6 +140,7 @@ FlowControl::BCConfigInput FlowControl::uniformPerimeter(const DigitalSet& ds, c
 FlowControl::BCAOutput FlowControl::boundaryCorrection(const BCConfigInput& bcInput,
                                                        const ODRConfigInput& odrConfigInput,
                                                        const cv::Mat& currentImage,
+                                                       const cv::Mat& pixelMask,
                                                        Point& translation)
 {
     MockDistribution frDistr;
@@ -149,7 +150,8 @@ FlowControl::BCAOutput FlowControl::boundaryCorrection(const BCConfigInput& bcIn
     BTools::Core::ImageDataInput imageDataInput(frDistr,
                                   bkDistr,
                                   currentImage,
-                                  currentImage);
+                                  currentImage,
+                                  pixelMask);
 
     BCConfigInput bcInputPerimeter = uniformPerimeter(imageDataInput.inputDS,bcInput,odrConfigInput);
 
@@ -220,7 +222,8 @@ void FlowControl::shapeFlow(const DigitalSet& _ds,
     std::ofstream os(outputFolder + "/" + inputName + ".txt");
 
 
-    DigitalSet ds = DIPaCUS::Transform::bottomLeftBoundingBoxAtOrigin(_ds,Point(60,60));
+//    DigitalSet ds = DIPaCUS::Transform::bottomLeftBoundingBoxAtOrigin(_ds,Point(60,60));
+    DigitalSet ds = _ds;
     Domain flowDomain = ds.domain();
 
 
@@ -229,6 +232,8 @@ void FlowControl::shapeFlow(const DigitalSet& _ds,
 
     cv::Mat img = cv::imread(currImagePath,cv::IMREAD_COLOR);
     Domain solutionDomain(Point(0,0),Point(img.cols-1,img.rows-1));
+
+    cv::Mat pixelMask = cv::imread(bcConfigInput.pixelMaskFilepath,CV_8U);
 
     int i=1;
     try
@@ -241,7 +246,7 @@ void FlowControl::shapeFlow(const DigitalSet& _ds,
 
 
                 Point translation;
-                BCAOutput bcaOutput = boundaryCorrection(bcConfigInput,odrConfigInput,currentImage,translation);
+                BCAOutput bcaOutput = boundaryCorrection(bcConfigInput,odrConfigInput,currentImage,pixelMask,translation);
 
                 DigitalSet correctedSet = correctTranslation(bcaOutput.energySolution,currentImage,translation);
                 checkBounds(correctedSet,flowDomain);

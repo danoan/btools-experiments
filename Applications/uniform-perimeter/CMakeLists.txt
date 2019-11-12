@@ -6,7 +6,7 @@ add_executable(uniform-perimeter uniform-perimeter.cpp
 		src/DataWriter.cpp)
 
 if (${USE_REMOTE_REPOSITORIES})
-    add_dependencies(uniform-perimeter dipacus scabolic btools gcurve tools plot)
+    add_dependencies(uniform-perimeter dipacus scabolic btools gcurve)
 endif ()
 
 target_include_directories(uniform-perimeter PRIVATE
@@ -17,8 +17,6 @@ target_include_directories(uniform-perimeter PRIVATE
         ${DGTAL_INCLUDE_DIRS})
 
 target_link_libraries(uniform-perimeter
-        -ltools
-        -lplot
         -ldipacus-derivates
         -ldipacus-components
         -ldipacus-base

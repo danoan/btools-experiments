@@ -14,7 +14,7 @@ namespace Estimations
             std::vector<double> ev;
             {
                 using namespace GEOC::API::GridCurve::Length;
-                mdssClosed<EstimationAlgorithms::ALG_PROJECTED> (kspace,curve.begin(),curve.end(),ev,gridStep);
+                mdssClosed<EstimationAlgorithms::ALG_PROJECTED> (kspace,curve.begin(),curve.end(),ev,gridStep,NULL);
             }
 
             double s=0;
@@ -32,12 +32,13 @@ namespace Estimations
             std::vector<double> evLength,evCurv;
             {
                 using namespace GEOC::API::GridCurve::Length;
-                mdssClosed<EstimationAlgorithms::ALG_PROJECTED> (kspace,curve.begin(),curve.end(),evLength,gridStep);
+                mdssClosed<EstimationAlgorithms::ALG_PROJECTED> (kspace,curve.begin(),curve.end(),evLength,gridStep,NULL);
             }
 
             {
                 using namespace GEOC::API::GridCurve::Curvature;
-                symmetricClosed<EstimationAlgorithms::ALG_MDCA> (kspace,curve.begin(),curve.end(),evCurv,gridStep);
+                GEOC::Estimator::Standard::IICurvatureExtraData extraData(true,5);
+                symmetricClosed<EstimationAlgorithms::ALG_MDCA> (kspace,curve.begin(),curve.end(),evCurv,gridStep,&extraData);
             }
 
             double s=0;
@@ -58,7 +59,8 @@ namespace Estimations
             DIPaCUS::Misc::computeBoundaryCurve(curve,ds);
             EstimationsVector ev;
 
-            identityOpen<EstimationAlgorithms::ALG_II>(KImage,curve.begin(),curve.end(),ev,gridStep);
+            GEOC::Estimator::Standard::IICurvatureExtraData extraData(true,5);
+            identityOpen<EstimationAlgorithms::ALG_II>(KImage,curve.begin(),curve.end(),ev,gridStep,&extraData);
 
             auto it = curve.begin();
             int pIndex=0;

@@ -34,7 +34,8 @@ int main(int argc, char* argv[])
                           0,
                           id.optMethod,
                           id.innerBallCoef,
-                          id.outerBallCoef);
+                          id.outerBallCoef,
+                          id.pixelMaskFilepath);
 
     ODRConfigInput odrConfigInput(id.radius,
                                   id.gridStep,

@@ -68,6 +68,7 @@ private:
     BCAOutput boundaryCorrection(const BCConfigInput& bcInput,
                                  const ODRConfigInput& odrConfigInput,
                                  const cv::Mat& currentImage,
+                                 const cv::Mat& pixelMask,
                                  Point& translation);
 
     DigitalSet correctTranslation(const BCAOutput::EnergySolution& solution,

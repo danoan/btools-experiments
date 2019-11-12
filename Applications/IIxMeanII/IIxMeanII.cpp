@@ -154,9 +154,10 @@ void testConvergence(std::ofstream& ofs, double radius, double h)
     std::vector<double> estimationsII;
     {
         using namespace GEOC::API::GridCurve::Curvature;
+        GEOC::Estimator::Standard::IICurvatureExtraData extraData(true,radius);
 
-        symmetricClosed<EstimationAlgorithms::ALG_MDCA>(KImage,c.begin(),c.end(),estimationsMDCA,h);
-        identityOpen<EstimationAlgorithms::ALG_II >(KImage,c.begin(),c.end(),estimationsII,h);
+        symmetricClosed<EstimationAlgorithms::ALG_MDCA>(KImage,c.begin(),c.end(),estimationsMDCA,h,NULL);
+        identityOpen<EstimationAlgorithms::ALG_II >(KImage,c.begin(),c.end(),estimationsII,h,&extraData);
     }
 
 
