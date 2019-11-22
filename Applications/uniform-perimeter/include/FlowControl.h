@@ -56,6 +56,7 @@ public:
                 int iterations,
                 Shape  shape,
                 double gridStep,
+                const std::string& pixelMaskFilepath,
                 const std::string& outputFolder,
                 std::ostream& osLog);
 
@@ -68,7 +69,7 @@ private:
     BCAOutput boundaryCorrection(const BCConfigInput& bcInput,
                                  const ODRConfigInput& odrConfigInput,
                                  const cv::Mat& currentImage,
-                                 const cv::Mat& pixelMask,
+                                 const std::string& pixelMaskFilepath,
                                  Point& translation);
 
     DigitalSet correctTranslation(const BCAOutput::EnergySolution& solution,
@@ -82,6 +83,7 @@ private:
                    const std::string& inputName,
                    const BCConfigInput& bcConfigInput,
                    const ODRConfigInput& odrConfigInput,
+                   const std::string& pixelMaskFilepath,
                    const std::string& outputFolder,
                    std::ostream& osLog);
 };

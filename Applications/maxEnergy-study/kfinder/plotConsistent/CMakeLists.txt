@@ -5,6 +5,8 @@ add_executable(kfinder-plotConsistent plotConsistent.cpp)
 
 if (${USE_REMOTE_REPOSITORIES})
     add_dependencies(kfinder-plotConsistent dipacus scabolic gcurve tools plot)
+else()
+    add_dependencies(kfinder-plotConsistent tools plot)
 endif ()
 
 target_include_directories(kfinder-plotConsistent PRIVATE
@@ -25,5 +27,6 @@ target_link_libraries(kfinder-plotConsistent
         -lscabolic-energy
         -lscabolic-core
         -lboost_filesystem
+        -lpthread
         ${DGTAL_LIBRARIES}
         ${OpenCV_LIBS})

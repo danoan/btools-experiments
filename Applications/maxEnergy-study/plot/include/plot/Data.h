@@ -9,9 +9,10 @@ namespace Plot
 {
     struct Data
     {
+        Data(){};
         Data(const DataInput& dataInput):dataInput(dataInput){}
 
-        const DataInput dataInput;
+        DataInput dataInput;
 
         double modelBallArea;
         double inIntersection;

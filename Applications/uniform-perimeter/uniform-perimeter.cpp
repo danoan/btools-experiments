@@ -34,8 +34,7 @@ int main(int argc, char* argv[])
                           0,
                           id.optMethod,
                           id.innerBallCoef,
-                          id.outerBallCoef,
-                          id.pixelMaskFilepath);
+                          id.outerBallCoef);
 
     ODRConfigInput odrConfigInput(id.radius,
                                   id.gridStep,
@@ -50,6 +49,7 @@ int main(int argc, char* argv[])
             id.iterations,
             id.shape,
             id.gridStep,
+            id.pixelMaskFilepath,
             outputFolder,
             std::cout);
 

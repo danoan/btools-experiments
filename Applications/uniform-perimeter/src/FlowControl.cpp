@@ -1,4 +1,5 @@
 #include "FlowControl.h"
+#include "../../../ext-projects/cmake-build-release/include/BTools/core/model/input/BCConfigInput.h"
 
 FlowControl::DigitalSet FlowControl::resolveShape(Shape shape,double gridStep)
 {
@@ -27,6 +28,7 @@ FlowControl::FlowControl(const BCConfigInput& bcInput,
                          int iterations,
                          Shape  shape,
                          double gridStep,
+                         const std::string& pixelMaskFilepath,
                          const std::string& outputFolder,
                          std::ostream& osLog)
 {
@@ -39,7 +41,7 @@ FlowControl::FlowControl(const BCConfigInput& bcInput,
     ofs.flush();
     ofs.close();
 
-    shapeFlow( ds,iterations,shape.name,bcInput,odrConfigInput,outputFolder,osLog );
+    shapeFlow( ds,iterations,shape.name,bcInput,odrConfigInput,pixelMaskFilepath,outputFolder,osLog );
 }
 
 std::vector<DataWriter::TableEntry> FlowControl::initEntries(const ODRConfigInput& odrConfigInput, const DigitalSet& ds)
@@ -127,8 +129,8 @@ FlowControl::BCConfigInput FlowControl::uniformPerimeter(const DigitalSet& ds, c
 
 
     BCConfigInput bcInputCopy = bcInput;
-    bcInputCopy.innerBallCoef = lengthContour/ODR.applicationRegionIn.size();
-    bcInputCopy.outerBallCoef = lengthContour/ODR.applicationRegionOut.size();
+    bcInputCopy.innerBallCoef = /*1.0;*/lengthContour/ODR.applicationRegionIn.size();
+    bcInputCopy.outerBallCoef = /*1.0;*/lengthContour/ODR.applicationRegionOut.size();
 
     std::cout << "Contour perimeter: " << lengthContour << std::endl;
     std::cout << "IBC: " << bcInputCopy.innerBallCoef << "   Inner perimeter: " << lengthIn << std::endl;
@@ -140,7 +142,7 @@ FlowControl::BCConfigInput FlowControl::uniformPerimeter(const DigitalSet& ds, c
 FlowControl::BCAOutput FlowControl::boundaryCorrection(const BCConfigInput& bcInput,
                                                        const ODRConfigInput& odrConfigInput,
                                                        const cv::Mat& currentImage,
-                                                       const cv::Mat& pixelMask,
+                                                       const std::string& pixelMaskFilepath,
                                                        Point& translation)
 {
     MockDistribution frDistr;
@@ -151,7 +153,7 @@ FlowControl::BCAOutput FlowControl::boundaryCorrection(const BCConfigInput& bcIn
                                   bkDistr,
                                   currentImage,
                                   currentImage,
-                                  pixelMask);
+                                  pixelMaskFilepath);
 
     BCConfigInput bcInputPerimeter = uniformPerimeter(imageDataInput.inputDS,bcInput,odrConfigInput);
 
@@ -208,6 +210,7 @@ void FlowControl::shapeFlow(const DigitalSet& _ds,
                             const std::string& inputName,
                             const BCConfigInput& bcConfigInput,
                             const ODRConfigInput& odrConfigInput,
+                            const std::string& pixelMaskFilepath,
                             const std::string& outputFolder,
                             std::ostream& osLog)
 {
@@ -230,11 +233,6 @@ void FlowControl::shapeFlow(const DigitalSet& _ds,
     BTools::Utils::exportImageFromDigitalSet(ds,flowDomain,currImagePath);
     std::vector<TableEntry> entries = initEntries(odrConfigInput,ds);
 
-    cv::Mat img = cv::imread(currImagePath,cv::IMREAD_COLOR);
-    Domain solutionDomain(Point(0,0),Point(img.cols-1,img.rows-1));
-
-    cv::Mat pixelMask = cv::imread(bcConfigInput.pixelMaskFilepath,CV_8U);
-
     int i=1;
     try
     {
@@ -246,7 +244,7 @@ void FlowControl::shapeFlow(const DigitalSet& _ds,
 
 
                 Point translation;
-                BCAOutput bcaOutput = boundaryCorrection(bcConfigInput,odrConfigInput,currentImage,pixelMask,translation);
+                BCAOutput bcaOutput = boundaryCorrection(bcConfigInput,odrConfigInput,currentImage,pixelMaskFilepath,translation);
 
                 DigitalSet correctedSet = correctTranslation(bcaOutput.energySolution,currentImage,translation);
                 checkBounds(correctedSet,flowDomain);

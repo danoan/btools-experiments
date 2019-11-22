@@ -7,7 +7,7 @@
 #include <SCaBOliC/Energy/ISQ/ISQEnergy.h>
 
 
-#include "TaylorEnergy.h"
+#include "TaylorEnergyPower2.h"
 #include "Constants.h"
 #include "MockDistribution.h"
 
@@ -45,7 +45,7 @@ namespace Utils
         return energyValue;
     }
 
-    std::pair<ODRModel,ISQEnergy> prepareEnergy(const TaylorEnergy& TE, double gridStep,double shapeRadius, double epsilon);
+    std::pair<ODRModel,ISQEnergy> prepareEnergy(const TaylorEnergyPower2& TE, double gridStep,double shapeRadius, double epsilon);
     double adjustedEnergy(const ODRModel& odr, const ISQEnergy& energy, double gridStep);
 }
 

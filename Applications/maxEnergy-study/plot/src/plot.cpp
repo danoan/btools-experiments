@@ -21,17 +21,30 @@ namespace Plot
         data.inIntersection = implicitBallIntersectionSize(shapeBall,modelBallIn,IN.gridStep)*gridAdjustement;
         data.outIntersection = implicitBallIntersectionSize(shapeBall,modelBallOut,IN.gridStep)*gridAdjustement;
 //        data.modelBallArea = Constants::PI*pow(IN.modelRadiusEpsilon(),2);
+
         data.modelBallArea = DIPaCUS::Shapes::digitizeShape(modelBallIn,IN.gridStep).size()*gridAdjustement;
 
-        data.inCoefficient = pow(data.inIntersection,2);
-        data.outCoefficient = pow(data.modelBallArea-data.outIntersection,2);
+        TaylorEnergyInterface* TE;
+        if(IN.taylorEnergy==DataInput::Power2)
+        {
+            TE = new TaylorEnergyPower2(IN.modelRadius);
+
+            data.inCoefficient = pow(data.inIntersection,2);
+            data.outCoefficient = pow(data.modelBallArea-data.outIntersection,2);
+        }
+        else if(IN.taylorEnergy==DataInput::NoPower)
+        {
+            TE = new TaylorEnergyNoPower(IN.modelRadius);
+
+            data.inCoefficient = data.inIntersection;
+            data.outCoefficient = data.modelBallArea-data.outIntersection;
+        }
 
         data.maxEnergy = data.inCoefficient + data.outCoefficient;
 
-        TaylorEnergy TE(IN.modelRadius);
         Constants::GroundTruth GT(IN.shapeRadius);
-        data.alpha = TE.alpha(IN.epsilon);
-        data.beta = TE.beta(IN.epsilon);
+        data.alpha = TE->alpha(IN.epsilon);
+        data.beta = TE->beta(IN.epsilon);
 
 
         data.TEV = data.alpha + data.beta*GT.k2;
@@ -47,19 +60,42 @@ namespace Plot
         return start + curr*(end-start)/(steps-1);
     }
 
-    void exportGNU(std::ostream& os,const Data& data)
+    std::string fixedStrLength(int l,double v)
     {
-        os << "#Epsilon\t\tMaxEnergy\t\tTEV\t\tMyK2\n";
-        os << data.dataInput.epsilon << "\t\t" << data.maxEnergy << "\t\t" << data.TEV << "\t\t" << data.MyK2 << "\n";
+        std::string out = std::to_string(v);
+        while(out.length()<l) out += " ";
+
+        return out;
+    }
+
+    std::string fixedStrLength(int l,std::string str)
+    {
+        std::string out = str;
+        while(out.length()<l) out += " ";
+
+        return out;
     }
 
     void exportGNU(std::ostream& os,const std::vector<Data>& dataVector)
     {
         int i=0;
-        os << "#Epsilon\t\tMaxEnergy\t\tTEV\t\tMyK2\t\tGridStep\n";
+        int colLength=20;
+        os << "#" << fixedStrLength(colLength,"Epsilon")
+        << fixedStrLength(colLength,"GridStep")
+        << fixedStrLength(colLength,"ModelRadius")
+        << fixedStrLength(colLength,"MaxEnergy")
+        << fixedStrLength(colLength,"TEV")
+        << fixedStrLength(colLength,"MyK2")
+        << "\n";
         for(auto d: dataVector)
         {
-            os << d.dataInput.epsilon << "\t\t" << d.maxEnergy << "\t\t" << d.TEV << "\t\t" << d.MyK2 << "\t\t" << d.dataInput.gridStep << "\n";
+            os << fixedStrLength(colLength,d.dataInput.epsilon)
+               << fixedStrLength(colLength,d.dataInput.gridStep)
+               << fixedStrLength(colLength,d.dataInput.modelRadius)
+               << fixedStrLength(colLength,d.maxEnergy)
+               << fixedStrLength(colLength,d.TEV)
+               << fixedStrLength(colLength,d.MyK2)
+               << "\n";
             ++i;
         }
     }
@@ -72,7 +108,6 @@ namespace Plot
 
         return DIPaCUS::Shapes::digitizeShape(CSG,gridStep).size();
     }
-
 
     void print(std::ostream& os,const Data& data)
     {

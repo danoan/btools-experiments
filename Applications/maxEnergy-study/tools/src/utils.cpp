@@ -26,7 +26,7 @@ namespace  Utils
         return energyValue;
     }
 
-    std::pair<ODRModel,ISQEnergy> prepareEnergy(const TaylorEnergy& TE, double gridStep,double shapeRadius, double epsilon)
+    std::pair<ODRModel,ISQEnergy> prepareEnergy(const TaylorEnergyPower2& TE, double gridStep,double shapeRadius, double epsilon)
     {
         double Lin = (2*PI*shapeRadius-TE.R);
         double Lout = (2*PI*shapeRadius+TE.R);

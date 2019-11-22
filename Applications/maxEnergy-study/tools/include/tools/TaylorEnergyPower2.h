@@ -1,14 +1,15 @@
-#ifndef EXPERIMENTS_TAYLORENERGY_H
-#define EXPERIMENTS_TAYLORENERGY_H
+#ifndef EXPERIMENTS_TAYLORENERGYPOWER2_H
+#define EXPERIMENTS_TAYLORENERGYPOWER2_H
 
 #include "Constants.h"
+#include "TaylorEnergyInterface.h"
 
-class TaylorEnergy
+class TaylorEnergyPower2: public TaylorEnergyInterface
 {
 public:
     typedef long double NumType;
 
-    TaylorEnergy(NumType radius)
+    TaylorEnergyPower2(NumType radius)
     {
         using namespace Constants;
 
@@ -53,4 +54,4 @@ public:
     NumType A,B,C,D,F,G,H,I,J;
 };
 
-#endif //EXPERIMENTS_TAYLORENERGY_H
+#endif //EXPERIMENTS_TAYLORENERGYPOWER2_H

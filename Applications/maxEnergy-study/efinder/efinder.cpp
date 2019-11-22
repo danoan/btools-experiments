@@ -2,14 +2,14 @@
 
 #include "tools/Constants.h"
 #include "tools/Estimations.h"
-#include "tools/TaylorEnergy.h"
+#include "tools/TaylorEnergyPower2.h"
 #include "tools/RootFinder.h"
 #include "tools/utils.h"
 
 using namespace Constants;
 using namespace Estimations;
 
-double thetaMetric(const GroundTruth& GT, const TaylorEnergy& TE,double epsilon, double maxEnergy)
+double thetaMetric(const GroundTruth& GT, const TaylorEnergyPower2& TE,double epsilon, double maxEnergy)
 {
     return GT.isc*GT.perimeter*TE.beta(epsilon)/(maxEnergy-TE.alpha(epsilon)*GT.perimeter);
 }
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
     double modelRadius=std::atof(argv[3]);
     double epsilon = std::atof(argv[4]);
 
-    TaylorEnergy TE(modelRadius);
+    TaylorEnergyPower2 TE(modelRadius);
     auto modelPair = Utils::prepareEnergy(TE,gridStep,shapeRadius,epsilon);
     double maxEnergy = Utils::adjustedEnergy(modelPair.first,modelPair.second,gridStep);
 

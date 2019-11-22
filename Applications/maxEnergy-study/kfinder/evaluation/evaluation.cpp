@@ -10,7 +10,7 @@ using namespace Plot;
 
 void intersectionTest(double h, double r, double epsilon, double R)
 {
-    typedef TaylorEnergy::NumType NumType;
+    typedef TaylorEnergyPower2::NumType NumType;
 
     NumType modelR = R+epsilon;
 
@@ -41,7 +41,7 @@ void intersectionTest(double h, double r, double epsilon, double R)
 
     NumType maxEnergy = inCoefficient + outCoefficient;
 
-    TaylorEnergy TE(R);
+    TaylorEnergyPower2 TE(R);
     Constants::GroundTruth GT(r);
     NumType alpha = TE.alpha(epsilon);
     NumType beta = TE.beta(epsilon);

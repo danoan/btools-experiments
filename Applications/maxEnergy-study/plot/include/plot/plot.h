@@ -5,9 +5,9 @@
 #include <SCaBOliC/Core/ODRPixels/ODRPixels.h>
 #include <geoc/api/api.h>
 
-#include <tools/TaylorEnergy.h>
+#include <tools/TaylorEnergyPower2.h>
+#include <tools/TaylorEnergyNoPower.h>
 #include <tools/Constants.h>
-#include <tools/RootFinder.h>
 #include <tools/Estimations.h>
 
 #include "Data.h"
@@ -29,8 +29,9 @@ namespace Plot
     double implicitBallIntersectionSize(const Ball2D& B1,const Ball2D& B2,const double gridStep);
 
 
+    std::string fixedStrLength(int l,double v);
+    std::string fixedStrLength(int l,std::string str);
     void print(std::ostream& os,const Data& data);
-    void exportGNU(std::ostream& os,const Data& data);
     void exportGNU(std::ostream& os,const std::vector<Data>& data);
 }
 
