@@ -35,7 +35,9 @@ link_directories(${DIPACUS_LIBS_DIR}
         ${SCABOLIC_LIBS_DIR}
         ${BOOST_LIBS_DIR}
         ${CMAKE_BINARY_DIR}/Applications/maxEnergy-study/tools
-        ${CMAKE_BINARY_DIR}/Applications/maxEnergy-study/plot)
+        ${CMAKE_BINARY_DIR}/Applications/maxEnergy-study/plot
+        ${CMAKE_BINARY_DIR}/Applications/diffEnergy-study/plot
+        ${CMAKE_BINARY_DIR}/Applications/diffEnergy-study/tools)
 
 add_subdirectory(Applications/IIxMeanII)
 add_subdirectory(Applications/intersection-flow)
@@ -44,3 +46,4 @@ add_subdirectory(Applications/morphology-flow)
 add_subdirectory(Applications/maxEnergy-study)
 add_subdirectory(Applications/DT-Flow)
 add_subdirectory(Applications/uniform-perimeter)
+add_subdirectory(Applications/diffEnergy-study)
